@@ -27,11 +27,4 @@ void PreGame::closeEvent(QCloseEvent * e)
     e->accept();
 }
 
-// Intend: 開啟Dialog，但結果預設為Rejected
-void PreGame::open()
-{
-    QDialog::open();
-    qDebug() << this << "open with result set as: " << this->result();
-}
-
 
