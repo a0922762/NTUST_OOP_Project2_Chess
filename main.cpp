@@ -1,5 +1,5 @@
 
-#include "pregame.h"
+#include "gamemainwindow.h"
 
 #include <QApplication>
 
@@ -7,7 +7,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    PreGame w;
-    w.show();
+    GameMainWindow* w = new GameMainWindow;
+    w->show();
     return a.exec();
 }

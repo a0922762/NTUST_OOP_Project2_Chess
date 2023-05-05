@@ -3,6 +3,7 @@
 #define PREGAME_H
 
 #include <QWidget>
+#include <QDialog>
 
 
 
@@ -10,14 +11,20 @@ QT_BEGIN_NAMESPACE
 namespace Ui { class PreGame; }
 QT_END_NAMESPACE
 
-class PreGame : public QWidget
+class PreGame : public QDialog
 
 {
     Q_OBJECT
 
 public:
-    PreGame(QWidget *parent = nullptr);
+    explicit PreGame(QWidget *parent = nullptr);
     ~PreGame();
+    virtual void closeEvent(QCloseEvent *) override;
+
+public slots:
+
+signals:
+    void startButtonClicked(QString FEN);
 
 private:
     Ui::PreGame *ui;
