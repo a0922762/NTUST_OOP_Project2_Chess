@@ -1,35 +1,21 @@
 #include "ChessPieces.h"
 
-ChessPieces::ChessPieces(int id) {
-	dead = false;
-	if (id >= 16) {
-		color = COLOR::White;
-		id -= 16;
-	}
-	else {
-		color = COLOR::Black;
-	}
+ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color)
+	: pos(pos), type(type), color(color)
+{
 
-	switch (id) {
-		case 0: type = TYPE::Rook; break;
-		case 1: type = TYPE::Knight; break;
-		case 2: type = TYPE::Bishop; break;
-		case 3: type = TYPE::Queen; break;
-		case 4: type = TYPE::King; break;
-		case 5: type = TYPE::Bishop; break;
-		case 6: type = TYPE::Knight; break;
-		case 7: type = TYPE::Rook; break;
-		default: type = TYPE::Pawn; break;
-	}
+}
 
-	this->id = id;
+// a1 -> Position{7, 0}
+Position posFromAlgebraic(std::string notation)
+{
+	Position pos;
+	pos.row = 8 - (notation.at(1) - '0');
+	pos.col = notation.at(0) - 'a';
+    return pos;
+}
 
-	if (color == COLOR::Black) {
-		row = id / 8;
-		col = id % 8;
-	}
-	else {
-		row = 7 - id / 8;
-		col = id % 8;
-	}
+bool isOnBoard(const Position &pos)
+{
+    return 0 <= pos.row && pos.row < 8 && 0 <= pos.col && pos.col < 8;
 }

@@ -8,13 +8,15 @@ using namespace std;
 
 class BasePlayer{
 private:
-	static ChessPieces chessPieces[32];
+	std::shared_ptr<BoardInfo> info;
 	COLOR color;
 
 
 public:
-	pair<int, int> getCanMove(int id, int row, int col /*, Board information*/);
-	bool tryMove(int id, int row, int col /*, Board information*/);
+	BasePlayer(std::shared_ptr<BoardInfo> info, COLOR color) : info(info), color(color) {}
+
+	pair<int, int> getCanMove(int row, int col /*, Board information*/);
+	bool tryMove(int row, int col /*, Board information*/);
 
 
 	bool attack(int id1, int id2);
