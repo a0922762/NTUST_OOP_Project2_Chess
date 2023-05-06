@@ -10,6 +10,7 @@ PreGame::PreGame(QWidget *parent)
     , ui(new Ui::PreGame)
 {
     ui->setupUi(this);
+    connect(ui->startGame, &QPushButton::clicked, this, &PreGame::sendSetting);
 }
 
 PreGame::~PreGame()
@@ -25,6 +26,29 @@ void PreGame::closeEvent(QCloseEvent * e)
         qApp->quit();
     }
     e->accept();
+}
+
+// Intend: 將使用者輸入的設定送出（emit）
+// Pre: 按下 startGame
+void PreGame::sendSetting()
+{
+    SettingProtocol setting;
+
+    // 設定棋盤類型
+    setting.FEN = (ui->regular_radio->isChecked() ? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                                                  : ui->FEN_edit->text());
+
+    // 設定計時類型
+    if (ui->noTimeLimit_radio->isChecked()) {
+        setting.timeLimitType = SettingProtocol::NO_LIMIT;
+        setting.initTime = QTime(0 , 0, 0);
+    }
+    else {
+        setting.timeLimitType = SettingProtocol::LIMIT_PER_PLAYER;
+        setting.initTime = QTime(ui->hour->value(), ui->minute->value(), ui->second->value());
+    }
+
+    emit startButtonClicked(setting);
 }
 
 

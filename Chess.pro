@@ -11,11 +11,14 @@ CONFIG += c++17
 SOURCES += \
     gamemainwindow.cpp \
     main.cpp \
-    pregame.cpp
+    pregame.cpp \
+    timedisplay.cpp
 
 HEADERS += \
+    SettingProtocol.h \
     gamemainwindow.h \
-    pregame.h
+    pregame.h \
+    timedisplay.h
 
 FORMS += \
     gamemainwindow.ui \

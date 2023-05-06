@@ -13,7 +13,100 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
-  <widget class="QWidget" name="centralwidget"/>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QGridLayout" name="chessBoard"/>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="TimeDisplay" name="black_timeLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Impact</family>
+          <pointsize>16</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 16pt &quot;Impact&quot;;
+color: white;
+background-color: black;
+border: 1px solid grey;</string>
+        </property>
+        <property name="text">
+         <string>00:00:00</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="turnLabel">
+        <property name="text">
+         <string>...'s Turn</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>Round ...</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="TimeDisplay" name="white_TimeLabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="font">
+         <font>
+          <family>Impact</family>
+          <pointsize>16</pointsize>
+          <italic>false</italic>
+          <bold>false</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 16pt &quot;Impact&quot;;
+color: black;
+background-color: white;
+border: 1px solid grey;</string>
+        </property>
+        <property name="text">
+         <string>00:00:00</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
+        <property name="scaledContents">
+         <bool>false</bool>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+        <property name="indent">
+         <number>-1</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
     <rect>
@@ -27,9 +120,9 @@
     <property name="title">
      <string>Option</string>
     </property>
-    <addaction name="actionNew_Game_2"/>
-    <addaction name="actionSurrender_2"/>
-    <addaction name="actionExit_3"/>
+    <addaction name="actionNew_Game"/>
+    <addaction name="actionSurrender"/>
+    <addaction name="actionExit"/>
    </widget>
    <addaction name="menuOption"/>
   </widget>
@@ -47,32 +140,19 @@
     <string>New Game</string>
    </property>
   </action>
-  <action name="actionExit_2">
-   <property name="text">
-    <string>Exit</string>
-   </property>
-  </action>
   <action name="actionSurrender">
-   <property name="text">
-    <string>Surrend</string>
-   </property>
-  </action>
-  <action name="actionNew_Game_2">
-   <property name="text">
-    <string>New Game</string>
-   </property>
-  </action>
-  <action name="actionSurrender_2">
    <property name="text">
     <string>Surrender</string>
    </property>
   </action>
-  <action name="actionExit_3">
-   <property name="text">
-    <string>Exit</string>
-   </property>
-  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>TimeDisplay</class>
+   <extends>QLabel</extends>
+   <header>timedisplay.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
