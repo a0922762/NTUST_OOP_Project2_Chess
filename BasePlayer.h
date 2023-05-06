@@ -1,4 +1,4 @@
-//©U§£µ{¦¡ «İ§ó§ï
+//åƒåœ¾ç¨‹å¼ å¾…æ›´æ”¹
 #pragma once
 
 #include "ChessPieces.h"

@@ -10,7 +10,7 @@
 
 enum class COLOR { White, Black };
 enum class TYPE {Pawn, Rook, Knight, Bishop, Queen, King };
-//©U§£µ{¦¡ «İ§ó§ï
+//åƒåœ¾ç¨‹å¼ å¾…æ›´æ”¹
 class ChessPieces
 {
 public:
