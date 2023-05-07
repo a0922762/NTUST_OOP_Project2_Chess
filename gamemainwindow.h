@@ -4,6 +4,7 @@
 
 #include <QMainWindow>
 #include "SettingProtocol.h"
+#include "GameManager.h"
 
 // pre declaration
 class PreGame;
@@ -28,6 +29,12 @@ public:
 public slots:
     void show();
     void startGame(SettingProtocol setting);
+    // 遊戲結束，state->結果
+    void gameOver(GameManager::State state);
+    // 將回合轉成某一隊，並設定訊息
+    void updateInfo(COLOR color);
+    void pause();
+    void newGame();
 
 signals:
 

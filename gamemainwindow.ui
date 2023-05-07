@@ -58,7 +58,7 @@ border: 1px solid grey;</string>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_2">
+       <widget class="QLabel" name="roundLabel">
         <property name="text">
          <string>Round ...</string>
         </property>
@@ -121,7 +121,9 @@ border: 1px solid grey;</string>
      <string>Option</string>
     </property>
     <addaction name="actionNew_Game"/>
+    <addaction name="actionPause"/>
     <addaction name="actionSurrender"/>
+    <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
    <addaction name="menuOption"/>
@@ -143,6 +145,11 @@ border: 1px solid grey;</string>
   <action name="actionSurrender">
    <property name="text">
     <string>Surrender</string>
+   </property>
+  </action>
+  <action name="actionPause">
+   <property name="text">
+    <string>Pause</string>
    </property>
   </action>
  </widget>

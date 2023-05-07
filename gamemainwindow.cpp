@@ -4,6 +4,8 @@
 #include "pregame.h"
 #include "timedisplay.h"
 #include <QDebug>
+#include <QMessageBox>
+#include <QRegularExpression>
 
 // Intend: set up ui
 GameMainWindow::GameMainWindow(QWidget *parent)
@@ -13,6 +15,17 @@ GameMainWindow::GameMainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     connect(pregameDialog, &PreGame::startButtonClicked, this, &GameMainWindow::startGame);
+    connect(ui->actionNew_Game, &QAction::triggered, this, &GameMainWindow::newGame);
+    connect(ui->actionSurrender, &QAction::triggered, this, [this]() {
+        // if white's turn
+        this->gameOver(GameManager::State::BLACK_WIN);
+        // else
+        // this->gameOver(GameManager::State::WHITE_WIN);
+    });
+    connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
+    connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
+    connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
+    connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
 }
 
 // Intent: destruct the object
@@ -65,7 +78,65 @@ void GameMainWindow::startGame(SettingProtocol setting)
     if (senderDialog != nullptr)
         senderDialog->accept();
 
-    // start timer
+    // if white first {
     ui->white_TimeLabel->start();
+    this->updateInfo(COLOR::White);
+    // } else {
+    // ui->black_timeLabel->start();
+    // this->updateInfo(COLOR::Black);
+    // }
+
+    // enable all action
+    QList<QAction*> actionList = this->findChildren<QAction*>(QRegularExpression("^action"));
+    for (auto it = actionList.begin(); it != actionList.end(); ++it) {
+        qDebug() << *it << "Enabled";
+        (*it)->setEnabled(true);
+    }
+}
+
+void GameMainWindow::gameOver(GameManager::State state)
+{
+    ui->white_TimeLabel->stop();
+    ui->black_timeLabel->stop();
+    QString message = (state == GameManager::State::BLACK_WIN ? "Black Wins!!!!" :
+                       state == GameManager::State::WHITE_WIN ? "White Wins!!!!" :
+                                                                "Draw");
+    QMessageBox::information(this, "Game Over", message);
+    ui->actionPause->setDisabled(true);
+    ui->actionSurrender->setDisabled(true);
+}
+
+void GameMainWindow::updateInfo(COLOR color)
+{
+    if (color == COLOR::White) {
+        ui->black_timeLabel->stop();
+        ui->white_TimeLabel->start();
+        ui->turnLabel->setText("White's Turn");
+        ui->turnLabel->setStyleSheet("background-color: white");
+    }
+    else {
+        ui->white_TimeLabel->stop();
+        ui->black_timeLabel->start();
+        ui->turnLabel->setText("Black's Turn");
+    }
+}
+
+void GameMainWindow::pause()
+{
+    ui->black_timeLabel->stop();
+    ui->white_TimeLabel->stop();
+    QMessageBox::information(this, "Paused", "The Game is Paused");
+    // if white's turn
+    ui->white_TimeLabel->start();
+    // else
+    // ui->black_timeLabel->start();
+}
+
+void GameMainWindow::newGame()
+{
+    ui->white_TimeLabel->stop();
+    ui->black_timeLabel->stop();
+    pregameDialog->setResult(QDialog::Rejected);
+    pregameDialog->open();
 }
 

@@ -47,6 +47,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;標準的西洋棋盤面&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
           <string>標準盤面</string>
          </property>
@@ -62,6 +65,9 @@
          </property>
          <item>
           <widget class="QRadioButton" name="FEN_radio">
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用FEN碼來載入盤面，分便覆盤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
            <property name="text">
             <string>FEN碼：</string>
            </property>
@@ -72,6 +78,12 @@
            <property name="enabled">
             <bool>false</bool>
            </property>
+           <property name="statusTip">
+            <string/>
+           </property>
+           <property name="whatsThis">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用FEN碼來載入盤面，分便覆盤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
           </widget>
          </item>
         </layout>
@@ -79,12 +91,18 @@
       </layout>
      </widget>
      <widget class="QWidget" name="timeTab">
+      <property name="whatsThis">
+       <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;設定時間限制&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      </property>
       <attribute name="title">
        <string>時間</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QRadioButton" name="noTimeLimit_radio">
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;沒有時間限制，無拘無束的進行遊戲&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
           <string>沒有時間限制</string>
          </property>
@@ -95,6 +113,9 @@
        </item>
        <item>
         <widget class="QRadioButton" name="hasTimeLimit_radio">
+         <property name="whatsThis">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;每人有固定的思考時間，用完即自動投降&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
           <string>有時間限制（每人）</string>
          </property>

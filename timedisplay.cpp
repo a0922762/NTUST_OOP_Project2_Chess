@@ -15,6 +15,7 @@ void TimeDisplay::update()
 {
     if (timerType == COUNTDOWN) {
         currentTime = currentTime.addSecs(-1);
+        this->updateText();
         if (currentTime == QTime(0, 0, 0)) {  // 若倒數結束
             emit timeout();
             stop();
@@ -22,8 +23,7 @@ void TimeDisplay::update()
     }
     else {
         currentTime = currentTime.addSecs(1);
+        this->updateText();
     }
-
-    this->updateText();
 }
 
