@@ -50,7 +50,7 @@ public:
 	void listPossibleMove(BoardInfo& info);
 
 	// 當滑鼠點擊時觸發
-	void ChessPieces::mousePressEvent(QMouseEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 
 signals:
 	// 參1 = 點擊的棋子, 參2 = 是否為第一次點擊 (第一次啟用/第二次取消)
