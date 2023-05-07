@@ -7,33 +7,35 @@
  * Update Date: 2023-05-06
  * Description: Header file for ChessPieces.cpp
  *********************************************************************/
+#include <QLabel>
+
 #include <memory>
 #include <vector>
 #include <string>
+#include "common.h"
 
-enum class COLOR { White, Black };
-enum class TYPE { Pawn, Rook, Knight, Bishop, Queen, King };
+enum class COLOR { WHITE, BLACK };
+enum class TYPE { PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
 // 下方flag分別對應：白方王翼入堡、白方后翼入堡、黑方王翼入堡、黑方后翼入堡
 enum class CASTLING { WHITE_K = 0b0001, WHITE_Q = 0b0010, BLACK_k = 0b0100, BLACK_q = 0b1000};
-struct Position { int row; int col; };
 Position posFromAlgebraic(std::string notation);
 bool isOnBoard(const Position& pos);
-//垃圾程式 待更改
 
 struct BoardInfo;
 
-class ChessPieces
+class ChessPieces : public QLabel
 {
+	Q_OBJECT
 public:
 	Position pos;
 	TYPE type;
 	COLOR color;
-
 public:
+	explicit ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent = nullptr);
 	ChessPieces(const Position& pos, TYPE type, COLOR color);
 
-	bool isWhite() const { return color == COLOR::White; }
-	bool isBlack() const { return color == COLOR::Black; }
+	bool isWhite() const { return color == COLOR::WHITE; }
+	bool isBlack() const { return color == COLOR::BLACK; }
 	int getRow() const { return pos.row; }
 	int getCol() const { return pos.col; }
 	Position& getPos() { return pos; }
@@ -45,6 +47,13 @@ public:
 	void drawTerritory(BoardInfo& info);
 	// 將可能走法存在 info.possibleMove[pos.row][pos.col]
 	void listPossibleMove(BoardInfo& info);
+
+	// 當滑鼠點擊時觸發
+	void ChessPieces::mousePressEvent(QMouseEvent* event) override;
+
+signals:
+	// 參1 = 點擊的棋子, 參2 = 是否為第一次點擊 (第一次啟用/第二次取消)
+	void clicked(Position pos);
 };
 
 struct BoardInfo {
