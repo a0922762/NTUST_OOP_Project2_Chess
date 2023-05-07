@@ -14,6 +14,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     , pregameDialog(new PreGame(this))
 {
     ui->setupUi(this);
+
     connect(pregameDialog, &PreGame::startButtonClicked, this, &GameMainWindow::startGame);
     connect(ui->actionNew_Game, &QAction::triggered, this, &GameMainWindow::newGame);
     connect(ui->actionSurrender, &QAction::triggered, this, [this]() {

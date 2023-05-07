@@ -15,7 +15,7 @@
 #include "common.h"
 
 enum class COLOR { WHITE, BLACK };
-enum class TYPE { PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
+enum class TYPE { EMPTY, PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
 // 下方flag分別對應：白方王翼入堡、白方后翼入堡、黑方王翼入堡、黑方后翼入堡
 enum class CASTLING { WHITE_K = 0b0001, WHITE_Q = 0b0010, BLACK_k = 0b0100, BLACK_q = 0b1000};
 Position posFromAlgebraic(std::string notation);
@@ -33,6 +33,7 @@ public:
 public:
 	explicit ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent = nullptr);
 	ChessPieces(const Position& pos, TYPE type, COLOR color);
+    ChessPieces(int row, int col, QWidget* parent = nullptr);
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }

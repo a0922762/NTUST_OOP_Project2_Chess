@@ -8,7 +8,7 @@ class ChessBoard : public QWidget
 {
 	Q_OBJECT
 private:
-	std::shared_ptr<ChessPieces> chessPieces[8][8];
+	ChessPieces* chessPieces[8][8];
 	bool firstClick;
 
 public:
