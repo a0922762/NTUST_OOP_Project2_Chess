@@ -80,7 +80,7 @@ void GameMainWindow::startGame(SettingProtocol setting)
 
     // if white first {
     ui->white_TimeLabel->start();
-    this->updateInfo(COLOR::White);
+    this->updateInfo(COLOR::WHITE);
     // } else {
     // ui->black_timeLabel->start();
     // this->updateInfo(COLOR::Black);
@@ -98,8 +98,8 @@ void GameMainWindow::gameOver(GameManager::State state)
 {
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
-    QString message = (state == GameManager::State::BLACK_WIN ? "Black Wins!!!!" :
-                       state == GameManager::State::WHITE_WIN ? "White Wins!!!!" :
+    QString message = (state == GameManager::State::BLACK_WIN ? "<b>Black</b> Wins!!!!" :
+                       state == GameManager::State::WHITE_WIN ? "<b>White</b> Wins!!!!" :
                                                                 "Draw");
     QMessageBox::information(this, "Game Over", message);
     ui->actionPause->setDisabled(true);
@@ -108,16 +108,17 @@ void GameMainWindow::gameOver(GameManager::State state)
 
 void GameMainWindow::updateInfo(COLOR color)
 {
-    if (color == COLOR::White) {
+    if (color == COLOR::WHITE) {
         ui->black_timeLabel->stop();
         ui->white_TimeLabel->start();
         ui->turnLabel->setText("White's Turn");
-        ui->turnLabel->setStyleSheet("background-color: white");
+        ui->turnLabel->setStyleSheet("background-color: white;" "color: black;");
     }
     else {
         ui->white_TimeLabel->stop();
         ui->black_timeLabel->start();
         ui->turnLabel->setText("Black's Turn");
+        ui->turnLabel->setStyleSheet("background-color: black;" "color: white;");
     }
 }
 
@@ -125,7 +126,7 @@ void GameMainWindow::pause()
 {
     ui->black_timeLabel->stop();
     ui->white_TimeLabel->stop();
-    QMessageBox::information(this, "Paused", "The Game is Paused");
+    QMessageBox::information(this, "Paused", "遊戲暫停");
     // if white's turn
     ui->white_TimeLabel->start();
     // else
