@@ -6,7 +6,7 @@ ChessBoard::ChessBoard(QWidget* parent)
 {
 	//TODO: initialize chessPieces
 	//GUI
-    this->setFixedSize(1024, 1024);
+    //this->setFixedSize(1024, 1024);
 
 	QGridLayout* layout = new QGridLayout;
 	for (int row = 0; row < 8; ++row) {
@@ -17,7 +17,8 @@ ChessBoard::ChessBoard(QWidget* parent)
 		}
 	}
 
-
+    layout->setAlignment(Qt::AlignCenter);
+    layout->setContentsMargins(0, 0, 0, 0);
 	this->setLayout(layout);
 
 }

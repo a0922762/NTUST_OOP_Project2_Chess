@@ -3,6 +3,8 @@
 #include <QPixmap>
 #include <QPalette>
 #include <QDebug>
+#include <QGuiApplication>
+#include <QScreen>
 
 ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent)
     : QLabel(parent), pos(pos), type(type), color(color)
@@ -21,8 +23,9 @@ ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     int id = row * 8 + col;
 
     QString pAddress;
-
-    this->setFixedSize(80, 89);
+    int height = QGuiApplication::primaryScreen()->availableGeometry().height();
+    height = (height / 2.0) / 8.0;   // 依螢幕大小調整
+    this->setFixedSize(height, height);
 
 
     switch (id) {
@@ -94,8 +97,7 @@ ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     }
 
     QPixmap piecesImage(pAddress);
-    this->setPixmap(piecesImage);
-
+    this->setPixmap(piecesImage.scaled(height * 0.7, height * 0.7, Qt::KeepAspectRatio));
 }
 
 // a1 -> Position{7, 0}
@@ -115,7 +117,7 @@ bool isOnBoard(const Position &pos)
 void ChessPieces::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
-        qDebug() << "click" << "\n";
+        qDebug() << pos.row << ',' << pos.col << "click";
         emit clicked(pos);
 
     }
