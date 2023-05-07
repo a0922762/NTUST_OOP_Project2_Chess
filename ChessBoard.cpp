@@ -1,36 +1,51 @@
 #include "ChessBoard.h"
+#include <QLayout>
 
 ChessBoard::ChessBoard(QWidget* parent)
 	: QWidget(parent), firstClick(true)
 {
 	//TODO: initialize chessPieces
 	//GUI
+    this->setFixedSize(1024, 1024);
+
+	QGridLayout* layout = new QGridLayout;
+	for (int row = 0; row < 8; ++row) {
+		for (int col = 0; col < 8; ++col) {
+			chessPieces[row][col] = new ChessPieces(row, col);
+			
+			layout->addWidget(chessPieces[row][col], row, col);
+		}
+	}
+
+
+	this->setLayout(layout);
+
 }
 
 void ChessBoard::chessPiecesClicked(Position pos) {
-	// 如果點到空格
+	// if click on empty
 	if (chessPieces[pos.row][pos.col] == nullptr) {
 
 		if (firstClick) {
 			return; // do nothing
 		}
 		else {
-			// 移動旗子
-			// 如果移動成功
-				// 切換移動方
-			// 否則
+			// move chessPieces
+			// if move success
+				//	change turn
+			// else
 				// do nothing
 		}
 	}
 	else {
 		if (firstClick) {
-			// 顯示可移動/攻擊的位置
+			// display possible move
 		}
 		else {
-			// 吃旗子
-			// 如果吃成功
-				// 切換移動方
-			// 否則
+			// eat chessPieces
+			// if eat success
+				// change turn
+			// else
 			// do nothing
 		}
 	}

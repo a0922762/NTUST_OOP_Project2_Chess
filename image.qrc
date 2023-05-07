@@ -1,0 +1,17 @@
+<RCC>
+    <qresource prefix="/pieces">
+        <file>chessPieces/b_bishop_png_128px.png</file>
+        <file>chessPieces/b_king_png_128px.png</file>
+        <file>chessPieces/b_knight_png_128px.png</file>
+        <file>chessPieces/b_pawn_png_128px.png</file>
+        <file>chessPieces/b_queen_png_128px.png</file>
+        <file>chessPieces/b_rook_png_128px.png</file>
+        <file>chessPieces/square brown dark_png_128px.png</file>
+        <file>chessPieces/w_bishop_png_128px.png</file>
+        <file>chessPieces/w_king_png_128px.png</file>
+        <file>chessPieces/w_knight_png_128px.png</file>
+        <file>chessPieces/w_pawn_png_128px.png</file>
+        <file>chessPieces/w_queen_png_128px.png</file>
+        <file>chessPieces/w_rook_png_128px.png</file>
+    </qresource>
+</RCC>

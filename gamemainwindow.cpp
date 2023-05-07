@@ -12,6 +12,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     , pregameDialog(new PreGame(this))
 {
     ui->setupUi(this);
+
     connect(pregameDialog, &PreGame::startButtonClicked, this, &GameMainWindow::startGame);
 }
 

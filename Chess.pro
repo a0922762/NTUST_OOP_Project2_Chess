@@ -12,14 +12,17 @@ SOURCES += \
     gamemainwindow.cpp \
     main.cpp \
     pregame.cpp \
-    timedisplay.cpp
+    timedisplay.cpp\
+    ChessBoard.cpp \
+    ChessPieces.cpp
 
 HEADERS += \
     SettingProtocol.h \
     gamemainwindow.h \
     pregame.h \
-    timedisplay.h
-
+    timedisplay.h \
+    ChessBoard.h \
+    ChessPieces.h
 FORMS += \
     gamemainwindow.ui \
     pregame.ui
@@ -28,3 +31,6 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+RESOURCES += \
+    image.qrc
