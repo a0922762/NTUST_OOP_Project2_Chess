@@ -5,6 +5,9 @@
 #include <QDebug>
 #include <QGuiApplication>
 #include <QScreen>
+#include <QResizeEvent>
+#include <QSvgRenderer>
+#include <QPainter>
 
 ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent)
     : QLabel(parent), pos(pos), type(type), color(color)
@@ -22,82 +25,106 @@ ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     pos = Position{ row, col };
     int id = row * 8 + col;
 
-    QString pAddress;
-    int height = QGuiApplication::primaryScreen()->availableGeometry().height();
-    height = (height / 2.0) / 8.0;   // 依螢幕大小調整
-    this->setFixedSize(height, height);
-
-
     switch (id) {
     case 0: case 7:
         type  = TYPE::ROOK;
         color = COLOR::BLACK;
-        pAddress = ":/pieces/chessPieces/b_rook_png_128px.png";
         break;
     case 1: case 6:
         type  = TYPE::KNIGHT;
         color = COLOR::BLACK;
-        pAddress = ":/pieces/chessPieces/b_knight_png_128px.png";
         break;
     case 2: case 5:
         type  = TYPE::BISHOP;
         color = COLOR::BLACK;
-        pAddress = ":/pieces/chessPieces/b_bishop_png_128px.png";
         break;
     case 3:
         type  = TYPE::QUEEN;
         color = COLOR::BLACK;
-        pAddress = ":/pieces/chessPieces/b_queen_png_128px.png";
         break;
     case 4:
         type  = TYPE::KING;
         color = COLOR::BLACK;
-        pAddress = ":/pieces/chessPieces/b_king_png_128px.png";
         break;
 
     case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15:
         type  = TYPE::PAWN;
         color = COLOR::BLACK;
-        pAddress = ":/pieces/chessPieces/b_pawn_png_128px.png";
         break;
     case 56: case 63:
         type  = TYPE::ROOK;
         color = COLOR::WHITE;
-        pAddress = ":/pieces/chessPieces/w_rook_png_128px.png";
         break;
     case 57: case 62:
         type  = TYPE::KNIGHT;
         color = COLOR::WHITE;
-        pAddress = ":/pieces/chessPieces/w_knight_png_128px.png";
         break;
     case 58: case 61:
         type  = TYPE::BISHOP;
         color = COLOR::WHITE;
-        pAddress = ":/pieces/chessPieces/w_bishop_png_128px.png";
         break;
     case 59:
         type  = TYPE::QUEEN;
         color = COLOR::WHITE;
-        pAddress = ":/pieces/chessPieces/w_queen_png_128px.png";
         break;
     case 60:
         type  = TYPE::KING;
         color = COLOR::WHITE;
-        pAddress = ":/pieces/chessPieces/w_king_png_128px.png";
         break;
     case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55:
         type  = TYPE::PAWN;
         color = COLOR::WHITE;
-        pAddress = ":/pieces/chessPieces/w_pawn_png_128px.png";
         break;
     default:
         type = TYPE::EMPTY;
         color = COLOR::WHITE;
         break;
     }
+    render();
+}
 
-    QPixmap piecesImage(pAddress);
-    this->setPixmap(piecesImage.scaled(height * 0.7, height * 0.7, Qt::KeepAspectRatio));
+void ChessPieces::render()
+{
+    int height = QGuiApplication::primaryScreen()->availableGeometry().height();
+    height = (height / 2.0) / 8.0;   // 依螢幕大小調整
+    this->setMinimumSize(height, height);
+    this->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
+    // row + col 為 奇數：深色，偶數：淺
+    this->setBackgroundRole((pos.row + pos.col) % 2 ? QPalette::AlternateBase : QPalette::Base);
+    // 使用palette的顏色來填滿
+    this->setAutoFillBackground(true);
+}
+
+void ChessPieces::resizeEvent(QResizeEvent *event)
+{
+    int h = event->size().height();
+    if (h == event->oldSize().height()) {
+        event->ignore();
+    } else if (h != event->size().width()) {
+        setMinimumWidth(h);
+    }
+    else {
+        event->accept();
+    }
+}
+
+void ChessPieces::paintEvent(QPaintEvent *)
+{
+    if (type != TYPE::EMPTY) {
+        QString pAddress;
+        pAddress.reserve(43);
+        pAddress = (color == COLOR::WHITE ? ":/pieces/chessPieces_svg/w_" : ":/pieces/chessPieces_svg/b_");
+        pAddress += (type == TYPE::PAWN ?  "pawn_" :
+                    type == TYPE::BISHOP ? "bishop_":
+                    type == TYPE::ROOK ?   "rook_" :
+                    type == TYPE::KNIGHT ? "knight_":
+                    type == TYPE::QUEEN ?  "queen_":
+                                           "king_");
+        pAddress += ".svg";
+        QPainter painter(this);
+        QSvgRenderer renderer(pAddress);
+        renderer.render(&painter);
+    }
 }
 
 // a1 -> Position{7, 0}

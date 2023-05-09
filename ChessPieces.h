@@ -44,6 +44,11 @@ public:
 
 	void move(int row, int col) { this->pos.row = row; this->pos.col = col; }
 
+    // 渲染
+    void render();  // minimum size & sizePolicy & background role
+    void resizeEvent(QResizeEvent*) override;  // resize to equal height and width
+    void paintEvent(QPaintEvent*) override;  // svg image
+
 	// 將勢力範圍記錄在 info.enemyTerritory
 	void drawTerritory(BoardInfo& info);
 	// 將可能走法存在 info.possibleMove[pos.row][pos.col]

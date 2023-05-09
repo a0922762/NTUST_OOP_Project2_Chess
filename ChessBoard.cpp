@@ -1,5 +1,6 @@
 #include "ChessBoard.h"
 #include <QLayout>
+#include <QPalette>
 
 ChessBoard::ChessBoard(QWidget* parent)
 	: QWidget(parent), firstClick(true)
@@ -8,19 +9,23 @@ ChessBoard::ChessBoard(QWidget* parent)
 	//GUI
     //this->setFixedSize(1024, 1024);
 
+    QPalette boardPalette;
+    boardPalette.setColor(QPalette::Base, QColor(223, 232, 247));
+    boardPalette.setColor(QPalette::AlternateBase, QColor(230, 126, 23));
+    this->setPalette(boardPalette);
+
 	QGridLayout* layout = new QGridLayout;
 	for (int row = 0; row < 8; ++row) {
 		for (int col = 0; col < 8; ++col) {
-			chessPieces[row][col] = new ChessPieces(row, col);
-			
+            chessPieces[row][col] = new ChessPieces(row, col);
+
 			layout->addWidget(chessPieces[row][col], row, col);
 		}
 	}
 
     layout->setAlignment(Qt::AlignCenter);
-    layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
 	this->setLayout(layout);
-
 }
 
 void ChessBoard::chessPiecesClicked(Position pos) {

@@ -13,5 +13,17 @@
         <file>chessPieces/w_pawn_png_128px.png</file>
         <file>chessPieces/w_queen_png_128px.png</file>
         <file>chessPieces/w_rook_png_128px.png</file>
+        <file>chessPieces_svg/b_bishop_.svg</file>
+        <file>chessPieces_svg/b_king_.svg</file>
+        <file>chessPieces_svg/b_knight_.svg</file>
+        <file>chessPieces_svg/b_pawn_.svg</file>
+        <file>chessPieces_svg/b_queen_.svg</file>
+        <file>chessPieces_svg/b_rook_.svg</file>
+        <file>chessPieces_svg/w_bishop_.svg</file>
+        <file>chessPieces_svg/w_king_.svg</file>
+        <file>chessPieces_svg/w_knight_.svg</file>
+        <file>chessPieces_svg/w_pawn_.svg</file>
+        <file>chessPieces_svg/w_queen_.svg</file>
+        <file>chessPieces_svg/w_rook_.svg</file>
     </qresource>
 </RCC>
