@@ -98,9 +98,9 @@ void ChessPieces::render()
 void ChessPieces::resizeEvent(QResizeEvent *event)
 {
     int h = event->size().height();
-    if (h == event->oldSize().height()) {
+    if (h == event->oldSize().height()) {  // 高度不變->忽略
         event->ignore();
-    } else if (h != event->size().width()) {
+    } else if (h != event->size().width()) {  // 寬不等於高->設定寬度
         setMinimumWidth(h);
     }
     else {
@@ -111,18 +111,20 @@ void ChessPieces::resizeEvent(QResizeEvent *event)
 void ChessPieces::paintEvent(QPaintEvent *)
 {
     if (type != TYPE::EMPTY) {
-        QString pAddress;
-        pAddress.reserve(43);
-        pAddress = (color == COLOR::WHITE ? ":/pieces/chessPieces_svg/w_" : ":/pieces/chessPieces_svg/b_");
-        pAddress += (type == TYPE::PAWN ?  "pawn_" :
-                    type == TYPE::BISHOP ? "bishop_":
-                    type == TYPE::ROOK ?   "rook_" :
-                    type == TYPE::KNIGHT ? "knight_":
-                    type == TYPE::QUEEN ?  "queen_":
-                                           "king_");
-        pAddress += ".svg";
+        if(svgAddress.isEmpty()) {   // 若svgAddress為空
+            svgAddress.reserve(43);
+            svgAddress = (color == COLOR::WHITE ? ":/pieces/chessPieces_svg/w_" : ":/pieces/chessPieces_svg/b_");
+            svgAddress += (type == TYPE::PAWN ?   "pawn_" :
+                           type == TYPE::BISHOP ? "bishop_":
+                           type == TYPE::ROOK ?   "rook_" :
+                           type == TYPE::KNIGHT ? "knight_":
+                           type == TYPE::QUEEN ?  "queen_":
+                                                  "king_");
+            svgAddress += ".svg";
+        }
+
         QPainter painter(this);
-        QSvgRenderer renderer(pAddress);
+        QSvgRenderer renderer(svgAddress);
         renderer.render(&painter);
     }
 }

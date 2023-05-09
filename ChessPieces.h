@@ -26,6 +26,7 @@ struct BoardInfo;
 class ChessPieces : public QLabel
 {
 	Q_OBJECT
+    QString svgAddress;
 public:
 	Position pos;
 	TYPE type;
