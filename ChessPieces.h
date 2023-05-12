@@ -8,11 +8,15 @@
  * Description: Header file for ChessPieces.cpp
  *********************************************************************/
 #include <QLabel>
+#include <QPixmap>
 
 #include <memory>
 #include <vector>
 #include <string>
+#include <iostream>
+
 #include "common.h"
+
 
 enum class COLOR { WHITE, BLACK };
 enum class TYPE { EMPTY, PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
@@ -30,31 +34,38 @@ public:
 	Position pos;
 	TYPE type;
 	COLOR color;
+    QString imageAddress;
 public:
 	explicit ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent = nullptr);
 	ChessPieces(const Position& pos, TYPE type, COLOR color);
     ChessPieces(int row, int col, QWidget* parent = nullptr);
+
+    void setPos(Position pos) { this->pos = pos; }
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }
 	int getRow() const { return pos.row; }
 	int getCol() const { return pos.col; }
 	Position& getPos() { return pos; }
+    const QPixmap* getImage() { return this->pixmap(); }
 	const Position& getPos() const { return pos; }
 
 	void move(int row, int col) { this->pos.row = row; this->pos.col = col; }
 
 	// 將勢力範圍記錄在 info.enemyTerritory
-	void drawTerritory(BoardInfo& info);
+	void drawTerritory(BoardInfo& info); 
 	// 將可能走法存在 info.possibleMove[pos.row][pos.col]
 	void listPossibleMove(BoardInfo& info);
+
+	TYPE getType() const { return type; }
 
 	// 當滑鼠點擊時觸發
     void mousePressEvent(QMouseEvent* event) override;
 
+	friend std::ostream& operator<<(std::ostream& os, const ChessPieces& chessPieces);
+
 signals:
-	// 參1 = 點擊的棋子, 參2 = 是否為第一次點擊 (第一次啟用/第二次取消)
-	void clicked(Position pos);
+	void clicked(Position pos); 
 };
 
 struct BoardInfo {

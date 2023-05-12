@@ -22,6 +22,7 @@ HEADERS += \
     ChessPieces.h \
     GameManager.h \
     SettingProtocol.h \
+    common.h \
     gamemainwindow.h \
     pregame.h \
     timedisplay.h \

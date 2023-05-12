@@ -23,7 +23,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
         // else
         // this->gameOver(GameManager::State::WHITE_WIN);
     });
-    connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
+    // connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
     connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
     connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
     connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
@@ -103,7 +103,7 @@ void GameMainWindow::gameOver(GameManager::State state)
                        state == GameManager::State::WHITE_WIN ? "<b>White</b> Wins!!!!" :
                                                                 "Draw");
     QMessageBox::information(this, "Game Over", message);
-    ui->actionPause->setDisabled(true);
+    // ui->actionPause->setDisabled(true);
     ui->actionSurrender->setDisabled(true);
 }
 

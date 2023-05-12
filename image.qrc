@@ -13,5 +13,21 @@
         <file>chessPieces/w_pawn_png_128px.png</file>
         <file>chessPieces/w_queen_png_128px.png</file>
         <file>chessPieces/w_rook_png_128px.png</file>
+        <file>chessPieces/chess/150.png</file>
+        <file>chessPieces/chess/bb.png</file>
+        <file>chessPieces/chess/bk.png</file>
+        <file>chessPieces/chess/bn.png</file>
+        <file>chessPieces/chess/bp.png</file>
+        <file>chessPieces/chess/bq.png</file>
+        <file>chessPieces/chess/br.png</file>
+        <file>chessPieces/chess/wb.png</file>
+        <file>chessPieces/chess/wk.png</file>
+        <file>chessPieces/chess/wn.png</file>
+        <file>chessPieces/chess/wp.png</file>
+        <file>chessPieces/chess/wq.png</file>
+        <file>chessPieces/chess/wr.png</file>
+    </qresource>
+    <qresource prefix="/">
+        <file>chessPieces/redDot.png</file>
     </qresource>
 </RCC>
