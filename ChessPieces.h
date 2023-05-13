@@ -23,7 +23,6 @@ enum class TYPE { EMPTY, PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
 // 下方flag分別對應：白方王翼入堡、白方后翼入堡、黑方王翼入堡、黑方后翼入堡
 enum class CASTLING { WHITE_K = 0b0001, WHITE_Q = 0b0010, BLACK_k = 0b0100, BLACK_q = 0b1000};
 Position posFromAlgebraic(std::string notation);
-bool isOnBoard(const Position& pos);
 
 struct BoardInfo;
 
@@ -41,6 +40,7 @@ public:
     ChessPieces(int row, int col, QWidget* parent = nullptr);
 
     void setPos(Position pos) { this->pos = pos; }
+    void swapChessInfo(ChessPieces& rhs);
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }
@@ -54,8 +54,6 @@ public:
 
 	// 將勢力範圍記錄在 info.enemyTerritory
 	void drawTerritory(BoardInfo& info); 
-	// 將可能走法存在 info.possibleMove[pos.row][pos.col]
-	void listPossibleMove(BoardInfo& info);
 
 	TYPE getType() const { return type; }
 

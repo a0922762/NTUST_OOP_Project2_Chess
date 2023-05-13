@@ -36,6 +36,7 @@ ChessBoard::ChessBoard(QWidget* parent)
 
     layout->setAlignment(Qt::AlignCenter);
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
 	this->setLayout(layout);
 
 
@@ -223,12 +224,17 @@ void ChessBoard::chessPiecesClicked(Position pos) {
             vector<Position> canGo = getCanMove(pos);
 
             for (auto i : canGo) {
-                chessPieces[i.row][i.col]->setStyleSheet("background-color: red;");
+                chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(255, 0, 0, 50);");
             }
 
             beforeClickPos = pos;
 		}
 		else {
+            vector<Position> canGo = getCanMove(beforeClickPos);
+
+            for (auto i : canGo) {
+                chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
+            }
 			// eat chessPieces
 			// if eat success
 				// change turn
@@ -243,18 +249,9 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 // have bug
 void ChessBoard::move(Position from, Position to) {
     qDebug() << "Move Action from" << "(" << from.row << ", " << from.col << ") : " << "(" << to.row << ", " << to.col << ")" << "\n";
-    QPixmap p(chessPieces[from.row][from.col]->imageAddress);
 
-    chessPieces[to.row][to.col]->setPixmap(p.scaled(100, 100, Qt::KeepAspectRatio));
-
-    chessPieces[from.row][from.col]->setPixmap(QPixmap());
-
-    chessPieces[from.row][from.col]->setPos(chessPieces[to.row][to.col]->getPos());
-    chessPieces[to.row][to.col]->setPos(chessPieces[from.row][from.col]->getPos());
-
-    swap(chessPieces[from.row][from.col], chessPieces[to.row][to.col]);
-
-
+    // 將from和to上的棋子交換
+    chessPieces[from.row][from.col]->swapChessInfo(*chessPieces[to.row][to.col]);
 }
 
 

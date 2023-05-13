@@ -103,6 +103,17 @@ ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     }
 }
 
+void ChessPieces::swapChessInfo(ChessPieces &rhs) {
+    // 三角交換
+    QPixmap tmp = rhs.pixmap(Qt::ReturnByValue);
+    rhs.setPixmap(this->pixmap(Qt::ReturnByValue));
+    this->setPixmap(tmp);
+
+    std::swap(type, rhs.type);
+    std::swap(color, rhs.color);
+    std::swap(imageAddress, rhs.imageAddress);
+}
+
 // a1 -> Position{7, 0}
 Position posFromAlgebraic(std::string notation)
 {
@@ -112,15 +123,10 @@ Position posFromAlgebraic(std::string notation)
     return pos;
 }
 
-bool isOnBoard(const Position &pos)
-{
-    return 0 <= pos.row && pos.row < 8 && 0 <= pos.col && pos.col < 8;
-}
-
 void ChessPieces::mousePressEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::LeftButton) {
-        qDebug() << pos.row << ',' << pos.col << "click";
+        qDebug() << pos.row << ',' << pos.col << "click" << (int)type << (int)color << imageAddress;
         emit clicked(pos);
 
     }
