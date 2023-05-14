@@ -4,6 +4,7 @@
 
 #include <QWidget>
 #include <QDialog>
+#include <QKeyEvent>
 #include "SettingProtocol.h"
 
 
@@ -28,10 +29,14 @@ class PreGame : public QDialog
 public:
     explicit PreGame(QWidget *parent = nullptr);
     ~PreGame();
-    virtual void closeEvent(QCloseEvent *) override;
+    void closeEvent(QCloseEvent *) override;
+    void keyPressEvent(QKeyEvent*) override;
 
 private slots:
     void sendSetting();
+
+public slots:
+    void open() override { setResult(QDialog::Rejected); QDialog::open(); }
 
 signals:
     void startButtonClicked(SettingProtocol setting);

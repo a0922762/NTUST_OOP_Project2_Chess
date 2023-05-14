@@ -28,6 +28,13 @@ void PreGame::closeEvent(QCloseEvent * e)
     e->accept();
 }
 
+// Intend: 按下Esc則關閉程式
+void PreGame::keyPressEvent(QKeyEvent * e)
+{
+    if (e->key() == Qt::Key_Escape)
+        qApp->quit();
+}
+
 // Intend: 將使用者輸入的設定送出（emit）
 // Pre: 按下 startGame
 void PreGame::sendSetting()

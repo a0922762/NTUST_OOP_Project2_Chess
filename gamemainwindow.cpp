@@ -164,7 +164,6 @@ void GameMainWindow::newGame()
 {
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
-    pregameDialog->setResult(QDialog::Rejected);
     pregameDialog->open();
 }
 
