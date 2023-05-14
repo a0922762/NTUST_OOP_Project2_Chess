@@ -29,7 +29,7 @@ private:
 	bool isBlack(int row, int col) const { return chessPieces[row][col]->isBlack(); }
 	bool isBlack(Position pos) const { return isBlack(pos.row, pos.col); }
 	bool isEnemy(Position own, Position enemy) const { return isWhite(own) != isWhite(enemy); }
-	bool isTurn(Position pos) const { return isWhite(pos) == (currentTeam == COLOR::WHITE); }
+    bool isTurn(Position pos) const { return isWhite(pos) == (currentTeam == COLOR::WHITE); }
 
 	// get can move position
 	std::vector<Position> getCanMove(Position pos) const;
@@ -62,10 +62,11 @@ public:
     void move(Position from, Position to);
 	void eat(Position eater, Position eaten);
 
-
 	// bool movePieces(Position from, Position to);
 
     void resizeEvent(QResizeEvent* event) override;
+
+    COLOR getTurn() const { return currentTeam; }
 
 signals:
 	void changedTurnSignal(COLOR currentTeam);

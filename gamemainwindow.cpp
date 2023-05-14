@@ -45,15 +45,16 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     connect(pregameDialog, &PreGame::startButtonClicked, this, &GameMainWindow::startGame);
     connect(ui->actionNew_Game, &QAction::triggered, this, &GameMainWindow::newGame);
     connect(ui->actionSurrender, &QAction::triggered, this, [this]() {
-        // if white's turn
-        this->gameOver(GameManager::State::BLACK_WIN);
-        // else
-        // this->gameOver(GameManager::State::WHITE_WIN);
+        if (this->ui->chessBoard->getTurn() == COLOR::WHITE)
+            this->gameOver(GameManager::State::BLACK_WIN);
+        else
+            this->gameOver(GameManager::State::WHITE_WIN);
     });
     connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
     connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
     connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
     connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
+    connect(ui->chessBoard, &ChessBoard::changedTurnSignal, this, &GameMainWindow::updateInfo);
 }
 
 // Intent: destruct the object
@@ -106,13 +107,7 @@ void GameMainWindow::startGame(SettingProtocol setting)
     if (senderDialog != nullptr)
         senderDialog->accept();
 
-    // if white first {
-    ui->white_TimeLabel->start();
-    this->updateInfo(COLOR::WHITE);
-    // } else {
-    // ui->black_timeLabel->start();
-    // this->updateInfo(COLOR::Black);
-    // }
+    this->updateInfo(ui->chessBoard->getTurn());
 
     // enable all action
     QList<QAction*> actionList = this->findChildren<QAction*>(QRegularExpression("^action"));
@@ -124,13 +119,16 @@ void GameMainWindow::startGame(SettingProtocol setting)
 
 void GameMainWindow::gameOver(GameManager::State state)
 {
+    if (state == GameManager::State::PLAYING)
+        return;
+
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
     QString message = (state == GameManager::State::BLACK_WIN ? "<b>Black</b> Wins!!!!" :
                        state == GameManager::State::WHITE_WIN ? "<b>White</b> Wins!!!!" :
                                                                 "Draw");
     QMessageBox::information(this, "Game Over", message);
-     ui->actionPause->setDisabled(true);
+    ui->actionPause->setDisabled(true);
     ui->actionSurrender->setDisabled(true);
 }
 
@@ -140,13 +138,14 @@ void GameMainWindow::updateInfo(COLOR color)
         ui->black_timeLabel->stop();
         ui->white_TimeLabel->start();
         ui->turnLabel->setText("White's Turn");
-        ui->turnLabel->setStyleSheet("background-color: white;" "color: black;");
+        ui->turnLabel->setStyleSheet("background-color: white; color: black; font: bold 35px alef;");
+        ui->roundLCD->display(ui->roundLCD->value() + 1);
     }
     else {
         ui->white_TimeLabel->stop();
         ui->black_timeLabel->start();
         ui->turnLabel->setText("Black's Turn");
-        ui->turnLabel->setStyleSheet("background-color: black;" "color: white;");
+        ui->turnLabel->setStyleSheet("background-color: black; color: white; font: bold 35px alef;");
     }
 }
 
@@ -155,10 +154,10 @@ void GameMainWindow::pause()
     ui->black_timeLabel->stop();
     ui->white_TimeLabel->stop();
     QMessageBox::information(this, "Paused", "遊戲暫停");
-    // if white's turn
-    ui->white_TimeLabel->start();
-    // else
-    // ui->black_timeLabel->start();
+    if (ui->chessBoard->getTurn() == COLOR::WHITE)
+        ui->white_TimeLabel->start();
+    else
+        ui->black_timeLabel->start();
 }
 
 void GameMainWindow::newGame()

@@ -10,9 +10,9 @@ int main(int argc, char *argv[])
     QApplication a(argc, argv);
     GameMainWindow* w = new GameMainWindow;
     w->show();
-    ChessBoard* board = new ChessBoard(nullptr);
+//    ChessBoard* board = new ChessBoard(nullptr);
 
-    w->show();
+//    w->show();
 
     return a.exec();
 }
