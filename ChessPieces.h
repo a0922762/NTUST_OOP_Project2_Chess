@@ -42,7 +42,7 @@ public:
 
     void setPos(Position pos) { this->pos = pos; }
     void swapChessInfo(ChessPieces& rhs);
-	void setEmpty() { type = TYPE::EMPTY; }
+    void setEmpty() { type = TYPE::EMPTY; imageAddress = ""; }
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }
