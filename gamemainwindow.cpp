@@ -15,6 +15,33 @@ GameMainWindow::GameMainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
+    // palette
+    QPalette myPalette;
+    myPalette.setColor(this->backgroundRole(), QColor(71, 68, 59));
+    myPalette.setColor(QPalette::WindowText, QColor(209, 202, 180));
+    this->setPalette(myPalette);
+
+    // 設置棋盤旁的label
+    QFont labelFont("impact", 12, 5);
+    auto idxOnBorder = [](int idx) { return idx == 0 || idx == 9; };
+    int fixedSize = 20;
+    for (int r = 0; r <=9; ++r) {
+        for (int c = 0; c <=9; ++c) {
+            if (!idxOnBorder(r) && !idxOnBorder(c))
+                continue;
+
+            QLabel* p = qobject_cast<QLabel*>(ui->boardLayout->itemAtPosition(r, c)->widget());
+            if (idxOnBorder(r))
+                p->setFixedHeight(fixedSize);
+            if (idxOnBorder(c))
+                p->setFixedWidth(fixedSize);
+
+            p->setFont(labelFont);
+            p->setAlignment(Qt::AlignCenter);
+        }
+    }
+
+
     connect(pregameDialog, &PreGame::startButtonClicked, this, &GameMainWindow::startGame);
     connect(ui->actionNew_Game, &QAction::triggered, this, &GameMainWindow::newGame);
     connect(ui->actionSurrender, &QAction::triggered, this, [this]() {
