@@ -17,6 +17,8 @@
 
 #include "common.h"
 
+#define INIT_PIECE_SIZE 80
+
 
 enum class COLOR { WHITE, BLACK };
 enum class TYPE { EMPTY, PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
@@ -29,14 +31,13 @@ struct BoardInfo;
 class ChessPieces : public QLabel
 {
 	Q_OBJECT
-public:
+private:
 	Position pos;
 	TYPE type;
 	COLOR color;
     QString imageAddress;
 public:
 	explicit ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent = nullptr);
-	ChessPieces(const Position& pos, TYPE type, COLOR color);
     ChessPieces(int row, int col, QWidget* parent = nullptr);
 
     void setPos(Position pos) { this->pos = pos; }
@@ -47,13 +48,11 @@ public:
 	int getRow() const { return pos.row; }
 	int getCol() const { return pos.col; }
 	Position& getPos() { return pos; }
-    const QPixmap* getImage() { return this->pixmap(); }
+    const QPixmap* getImage() const { return this->pixmap(); }
+    const QString& getImgAddr() const { return this->imageAddress; }
 	const Position& getPos() const { return pos; }
 
 	void move(int row, int col) { this->pos.row = row; this->pos.col = col; }
-
-	// 將勢力範圍記錄在 info.enemyTerritory
-	void drawTerritory(BoardInfo& info); 
 
 	TYPE getType() const { return type; }
 
@@ -66,15 +65,15 @@ signals:
 	void clicked(Position pos); 
 };
 
-struct BoardInfo {
-	COLOR currentTeam; // 移動方
-	std::unique_ptr<ChessPieces> board[8][8]; // 棋盤&棋子
-	std::vector<Position> possibleMove[8][8]; // 每一格可能的走法
-	struct {
-		bool isDonamited;
-		bool isAttackingKing;
-	} enemyTerritory[8][8];  // 敵方勢力範圍
-	int numOfChecking = 0;  // 有幾個「實際的」敵方棋子可以攻擊到國王
-	Position EnPassant = { -1, -1 };  // 可吃過路兵的位置
-	int castlingFlag = 0;  // 可否入堡的旗標
-};
+//struct BoardInfo {
+//	COLOR currentTeam; // 移動方
+//	std::unique_ptr<ChessPieces> board[8][8]; // 棋盤&棋子
+//	std::vector<Position> possibleMove[8][8]; // 每一格可能的走法
+//	struct {
+//		bool isDonamited;
+//		bool isAttackingKing;
+//	} enemyTerritory[8][8];  // 敵方勢力範圍
+//	int numOfChecking = 0;  // 有幾個「實際的」敵方棋子可以攻擊到國王
+//	Position EnPassant = { -1, -1 };  // 可吃過路兵的位置
+//	int castlingFlag = 0;  // 可否入堡的旗標
+//};

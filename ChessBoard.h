@@ -1,5 +1,6 @@
 #pragma once
 #include <QWidget>
+#include <QResizeEvent>
 #include <memory>
 #include <vector>
 #include "ChessPieces.h"
@@ -40,6 +41,8 @@ public:
     void move(Position from, Position to);
 
 	// bool movePieces(Position from, Position to);
+
+    void resizeEvent(QResizeEvent* event) override;
 
 signals:
 	void changedTurn();
