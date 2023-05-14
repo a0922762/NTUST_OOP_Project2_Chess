@@ -4,15 +4,21 @@
 #include <common.h>
 #include <algorithm>
 
+#define BACKGROUND ":/pieces/chessPieces/chess/150.png"
+
 using namespace std;
 
 ChessBoard::ChessBoard(QWidget* parent)
 	: QWidget(parent), firstClick(true), currentTeam(COLOR::WHITE)
 {
-    this->setFixedSize(800, 800);
+	//TODO: initialize chessPieces
+	//GUI
+
+    this->setMinimumSize(INIT_PIECE_SIZE * 8, INIT_PIECE_SIZE * 8);
+    this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
     // set wedget background
-    QPixmap backGround(":/pieces/chessPieces/chess/150.png");
+    QPixmap backGround(BACKGROUND);
     QPalette palette;
     palette.setBrush(this->backgroundRole(), QBrush(backGround.scaled(this->size(), Qt::KeepAspectRatio)));
     this->setPalette(palette);
@@ -422,3 +428,36 @@ void ChessBoard::changeTurn() {
 
 	emit changedTurnSignal(currentTeam);
 }
+
+void ChessBoard::resizeEvent(QResizeEvent *event)
+{
+    int boardH = event->size().height();
+    int pieceH = boardH / 8;
+
+    // 讓寬 = 高
+    this->setFixedWidth(boardH);
+
+    // 高不變
+    if (boardH == event->oldSize().height()) {
+        return;
+    }
+
+    // 改背景大小
+    QPalette p = this->palette();
+    p.setBrush(this->backgroundRole(), QPixmap(BACKGROUND).scaled(boardH, boardH));
+    this->setPalette(p);
+
+    // 改每個棋子的大小
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            ChessPieces* thePiece = chessPieces[r][c];
+
+            thePiece->setFixedSize(pieceH, pieceH);
+            if (thePiece->getImgAddr() != "") {
+                thePiece->setPixmap(QPixmap(thePiece->getImgAddr()).scaled(pieceH, pieceH));
+            }
+        }
+    }
+}
+
+

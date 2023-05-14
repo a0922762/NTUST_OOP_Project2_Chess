@@ -11,19 +11,13 @@ ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* p
 {
 }
 
-ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color)
-    : pos(pos), type(type), color(color)
-{
-
-}
-
 ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     pos = Position{ row, col };
     int id = row * 8 + col;
 
     QString pAddress;
 
-    this->setFixedSize(100, 100);
+    this->setFixedSize(INIT_PIECE_SIZE, INIT_PIECE_SIZE);
 
 
 
