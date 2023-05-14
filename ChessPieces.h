@@ -42,6 +42,7 @@ public:
 
     void setPos(Position pos) { this->pos = pos; }
     void swapChessInfo(ChessPieces& rhs);
+	void setEmpty() { type = TYPE::EMPTY; }
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }
@@ -52,15 +53,14 @@ public:
     const QString& getImgAddr() const { return this->imageAddress; }
 	const Position& getPos() const { return pos; }
 
-	void move(int row, int col) { this->pos.row = row; this->pos.col = col; }
+	
 
 	TYPE getType() const { return type; }
 
 	// 當滑鼠點擊時觸發
     void mousePressEvent(QMouseEvent* event) override;
 
-	friend std::ostream& operator<<(std::ostream& os, const ChessPieces& chessPieces);
-
+	friend void swap(ChessPieces& lhs, ChessPieces& rhs);
 signals:
 	void clicked(Position pos); 
 };

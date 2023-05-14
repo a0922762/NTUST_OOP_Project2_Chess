@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
     w->show();
     ChessBoard* board = new ChessBoard(nullptr);
 
-    board->show();
+    w->show();
 
     return a.exec();
 }

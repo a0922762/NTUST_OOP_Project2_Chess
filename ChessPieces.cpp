@@ -108,6 +108,10 @@ void ChessPieces::swapChessInfo(ChessPieces &rhs) {
     std::swap(imageAddress, rhs.imageAddress);
 }
 
+void swap(ChessPieces& lhs, ChessPieces& rhs) {
+	lhs.swapChessInfo(rhs);
+}
+
 // a1 -> Position{7, 0}
 Position posFromAlgebraic(std::string notation)
 {
