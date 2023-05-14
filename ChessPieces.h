@@ -41,6 +41,7 @@ public:
 
     void setPos(Position pos) { this->pos = pos; }
     void swapChessInfo(ChessPieces& rhs);
+	void setEmpty() { type = TYPE::EMPTY; }
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }
@@ -50,7 +51,7 @@ public:
     const QPixmap* getImage() { return this->pixmap(); }
 	const Position& getPos() const { return pos; }
 
-	void move(int row, int col) { this->pos.row = row; this->pos.col = col; }
+	
 
 	// 將勢力範圍記錄在 info.enemyTerritory
 	void drawTerritory(BoardInfo& info); 
@@ -60,8 +61,7 @@ public:
 	// 當滑鼠點擊時觸發
     void mousePressEvent(QMouseEvent* event) override;
 
-	friend std::ostream& operator<<(std::ostream& os, const ChessPieces& chessPieces);
-
+	friend void swap(ChessPieces& lhs, ChessPieces& rhs);
 signals:
 	void clicked(Position pos); 
 };

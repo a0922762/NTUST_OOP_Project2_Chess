@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
     GameMainWindow* w = new GameMainWindow;
     ChessBoard* board = new ChessBoard(nullptr);
 
-    board->show();
+    w->show();
 
     return a.exec();
 }
