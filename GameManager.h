@@ -14,14 +14,8 @@ public:
     enum class State { PLAYING, WHITE_WIN, BLACK_WIN, DRAW};
 
 private:
-    std::shared_ptr<BoardInfo> info;
-    State state;
 
 public:
-    GameManager(std::shared_ptr<BoardInfo> info) :info(info), state(State::PLAYING) {}
 
-    void load(std::string FEN);
-    // 為下一回合的行動方計算所有可行走法+更新state
-    void nextTurn();
-    State getState() const { return state; }
+    static void load(QString FEN, ChessPieces* pieces[8][8], COLOR& moveTeam, int& castlingFlag, Position& enPassant, int& halfmove, int& fullmove);
 };

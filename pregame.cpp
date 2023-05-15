@@ -4,6 +4,7 @@
 #include <QCloseEvent>
 #include <QDebug>
 #include <QTabBar>
+#include <QMessageBox>
 #include <QRegularExpressionValidator>
 
 PreGame::PreGame(QWidget *parent)
@@ -72,8 +73,19 @@ void PreGame::sendSetting()
     SettingProtocol setting;
 
     // 設定棋盤類型
-    setting.FEN = (ui->regular_radio->isChecked() ? "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-                                                  : ui->FEN_edit->text());
+    if (ui->regular_radio->isChecked()) {
+        setting.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    }
+    else {
+        setting.FEN = ui->FEN_edit->text();
+        int pos = 0;
+        if (ui->FEN_edit->validator()->validate(setting.FEN, pos) != QValidator::Acceptable) {
+            QString regex = qobject_cast<const QRegularExpressionValidator*>(ui->FEN_edit->validator())->regularExpression().pattern();
+            QMessageBox::warning(this, "FEN load failed",
+                                 "The FEN code doesn't match the regular expression: " + regex);
+            return;
+        }
+    }
 
     // 設定計時類型
     if (ui->noTimeLimit_radio->isChecked()) {

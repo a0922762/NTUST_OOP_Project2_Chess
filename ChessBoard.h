@@ -3,6 +3,7 @@
 #include <QResizeEvent>
 #include <memory>
 #include <vector>
+#include "GameManager.h"
 #include "ChessPieces.h"
 #include "common.h"
 
@@ -16,6 +17,10 @@ private:
 	bool firstClick;
 	Position beforeClickPos;
 	COLOR currentTeam;
+    int castlingFlag = 0b1111;
+    Position enPassant = { -1, -1 };
+    int halfmove = 0;
+    int fullmove = 0;
 
 private:
 	// get information
@@ -67,6 +72,10 @@ public:
     void resizeEvent(QResizeEvent* event) override;
 
     COLOR getTurn() const { return currentTeam; }
+    int getHalfMove() const { return halfmove; }
+    int getFullMove() const { return fullmove; }
+
+    void load(QString FEN) {GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);}
 
 signals:
 	void changedTurnSignal(COLOR currentTeam);

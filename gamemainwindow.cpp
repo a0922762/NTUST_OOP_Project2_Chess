@@ -78,9 +78,13 @@ void GameMainWindow::startGame(SettingProtocol setting)
 {
     // 對棋盤初始化
     qDebug() << "FEN: " << setting.FEN;
-    // if (fail)
-    //    QMessageDialog
-    //    return;
+    try {
+        ui->chessBoard->load(setting.FEN);
+    }
+    catch (QString& str) {
+        QMessageBox::warning(this, "FEN load failed", str);
+        return;
+    }
 
     qDebug() << setting.initTime << setting.timeLimitType;
     // 一開始的時間
@@ -139,7 +143,6 @@ void GameMainWindow::updateInfo(COLOR color)
         ui->white_TimeLabel->start();
         ui->turnLabel->setText("White's Turn");
         ui->turnLabel->setStyleSheet("background-color: white; color: black; font: bold 35px alef;");
-        ui->roundLCD->display(ui->roundLCD->value() + 1);
     }
     else {
         ui->white_TimeLabel->stop();
@@ -147,6 +150,8 @@ void GameMainWindow::updateInfo(COLOR color)
         ui->turnLabel->setText("Black's Turn");
         ui->turnLabel->setStyleSheet("background-color: black; color: white; font: bold 35px alef;");
     }
+    ui->roundLCD->display(ui->chessBoard->getFullMove());
+    ui->halfmoveLCD->display(ui->chessBoard->getHalfMove());
 }
 
 void GameMainWindow::pause()

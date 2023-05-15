@@ -421,6 +421,7 @@ void ChessBoard::emphasizeClear(Position pos) {
 void ChessBoard::changeTurn() {
 	if (currentTeam == COLOR::BLACK) {
 		currentTeam = COLOR::WHITE;
+        fullmove++;
 	}
 	else {
 		currentTeam = COLOR::BLACK;
