@@ -82,7 +82,7 @@
             <string/>
            </property>
            <property name="whatsThis">
-            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用FEN碼來載入盤面，分便覆盤&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;FEN格式： &amp;lt;棋子擺放&amp;gt; &amp;lt;移動方&amp;gt; &amp;lt;可否入堡&amp;gt; &amp;lt;過路兵的目標&amp;gt; &amp;lt;halfmove clock&amp;gt; &amp;lt;fullmove number&amp;gt;&lt;/p&gt;&lt;p&gt;每一個項目中間以一個空格分隔&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
            </property>
           </widget>
          </item>

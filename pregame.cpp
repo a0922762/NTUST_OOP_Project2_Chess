@@ -3,7 +3,8 @@
 #include "ui_pregame.h"
 #include <QCloseEvent>
 #include <QDebug>
-
+#include <QTabBar>
+#include <QRegularExpressionValidator>
 
 PreGame::PreGame(QWidget *parent)
     : QDialog(parent)
@@ -11,6 +12,35 @@ PreGame::PreGame(QWidget *parent)
 {
     ui->setupUi(this);
     connect(ui->startGame, &QPushButton::clicked, this, &PreGame::sendSetting);
+
+    this->setFont(QFont("cascadia mono"));
+
+    // 整體
+    QPalette myPalette;
+    myPalette.setColor(QPalette::Window, QColor(71, 68, 59));
+    this->setPalette(myPalette);
+
+    // tab內
+    myPalette.setColor(QPalette::Window, QColor(92, 88, 78));
+    myPalette.setColor(QPalette::WindowText, QColor(209, 202, 180));
+    myPalette.setColor(QPalette::HighlightedText, QColor(255, 0, 0));
+    myPalette.setColor(QPalette::Highlight, QColor(255, 255, 255));
+    ui->tabWidget->setPalette(myPalette);
+    ui->tabWidget->setDocumentMode(true); // 不要顯示邊框
+    ui->tabWidget->tabBar()->setStyleSheet(
+        "QTabBar::tab {background-color: rgb(133, 126, 114); color: rgb(209, 202, 180);}"
+        "QTabBar::tab:selected {background-color: rgb(92, 88, 78); color: rgb(209, 202, 180);}"
+        "QTabBar::tab:hover {border-bottom: 4px solid rgb(71, 68, 59);}"
+        );
+    // 讓tab內自動套上背景顏色
+    ui->timeTab->setAutoFillBackground(true);
+    ui->boardTab->setAutoFillBackground(true);
+
+    // validator
+    // FEN格式： <棋子擺放> <移動方> <可否入堡> <過路兵的目標> <halfmove clock> <fullmove number>
+    ui->FEN_edit->setValidator(new QRegularExpressionValidator(
+        QRegularExpression("^[rnbqkpRNBQKP12345678/]+ [wb] (-|[KQkq]+) (-|[abcdefgh][12345678]) (\\d+) (\\d+)$")
+        ));
 }
 
 PreGame::~PreGame()

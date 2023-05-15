@@ -360,12 +360,17 @@ border: 1px solid grey;</string>
         </property>
         <property name="font">
          <font>
-          <family>Alef</family>
-          <pointsize>35</pointsize>
+          <family>alef</family>
+          <pointsize>-1</pointsize>
+          <italic>false</italic>
+          <bold>true</bold>
          </font>
         </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: white; color: black; font: bold 35px alef;</string>
+        </property>
         <property name="text">
-         <string>...'s Turn</string>
+         <string>White's Turn</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -379,6 +384,7 @@ border: 1px solid grey;</string>
           <property name="font">
            <font>
             <family>Impact</family>
+            <pointsize>12</pointsize>
            </font>
           </property>
           <property name="text">
