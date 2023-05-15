@@ -14,6 +14,7 @@ SOURCES += \
     gamemainwindow.cpp \
     main.cpp \
     pregame.cpp \
+    promotiondialog.cpp \
     timedisplay.cpp\
     ChessBoard.cpp \
     ChessPieces.cpp
@@ -25,12 +26,14 @@ HEADERS += \
     common.h \
     gamemainwindow.h \
     pregame.h \
+    promotiondialog.h \
     timedisplay.h \
     ChessBoard.h \
     ChessPieces.h
 FORMS += \
     gamemainwindow.ui \
-    pregame.ui
+    pregame.ui \
+    promotiondialog.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
