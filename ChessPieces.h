@@ -26,7 +26,7 @@ enum class TYPE { EMPTY, PAWN, ROOK, KNIGHT, BISHOP, QUEEN, KING };
 enum class CASTLING { WHITE_K = 0b0001, WHITE_Q = 0b0010, BLACK_k = 0b0100, BLACK_q = 0b1000};
 Position posFromAlgebraic(std::string notation);
 
-struct BoardInfo;
+//struct BoardInfo;
 
 class ChessPieces : public QLabel
 {
@@ -42,7 +42,8 @@ public:
 
     void setPos(Position pos) { this->pos = pos; }
     void swapChessInfo(ChessPieces& rhs);
-    void setEmpty() { type = TYPE::EMPTY; imageAddress = ""; }
+    void setEmpty() { setType(TYPE::EMPTY, COLOR::WHITE); }
+    void setType(TYPE type, COLOR color);
 
 	bool isWhite() const { return color == COLOR::WHITE; }
 	bool isBlack() const { return color == COLOR::BLACK; }
