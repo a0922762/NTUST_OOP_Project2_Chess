@@ -59,6 +59,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QRadioButton" name="regularBlack_radio">
+         <property name="text">
+          <string>標準盤面（黑方先手）</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <property name="spacing">
           <number>7</number>

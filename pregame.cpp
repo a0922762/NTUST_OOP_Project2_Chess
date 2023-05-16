@@ -76,6 +76,9 @@ void PreGame::sendSetting()
     if (ui->regular_radio->isChecked()) {
         setting.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
     }
+    else if (ui->regularBlack_radio->isChecked()) {
+        setting.FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR b KQkq - 0 1";
+    }
     else {
         setting.FEN = ui->FEN_edit->text();
         int pos = 0;
