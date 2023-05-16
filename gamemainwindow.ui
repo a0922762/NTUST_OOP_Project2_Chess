@@ -516,6 +516,11 @@ border: 1px solid grey;</string>
      <string>Advance</string>
     </property>
     <addaction name="actionto_FEN"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionUndo"/>
+    <addaction name="separator"/>
+    <addaction name="actionRedo"/>
    </widget>
    <addaction name="menuOption"/>
    <addaction name="menuAdvance"/>
@@ -546,7 +551,17 @@ border: 1px solid grey;</string>
   </action>
   <action name="actionto_FEN">
    <property name="text">
-    <string>to FEN</string>
+    <string>To FEN</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
    </property>
   </action>
  </widget>

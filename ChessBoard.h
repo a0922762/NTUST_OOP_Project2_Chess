@@ -23,8 +23,8 @@ private:
     int fullmove = 0;
 
     GameManager::State gameState;
-    std::vector<QString> moves;
-    int currentMove;
+    std::vector<QString> moves; //!< 以FEN儲存每回合盤面
+    int currentMove; //!< 目前盤面在moves中的index
 
 private:
 	// get information
@@ -79,6 +79,7 @@ public:
 
     void load(QString FEN);
     QString toFEN() { return GameManager::toFEN((const ChessPieces*(*)[8])chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);}
+    const QString& getCurrentFEN() { return moves[currentMove]; }
 
 signals:
 	void changedTurnSignal(COLOR currentTeam);
@@ -86,6 +87,8 @@ signals:
 	void promotion(int &chooseId);
 public slots:
 	void chessPiecesClicked(Position pos);
+    void undo();
+    void redo();
 	// bool eatPieces(Position from, Position to);
 
 };

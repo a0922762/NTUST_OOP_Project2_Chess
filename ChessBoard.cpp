@@ -491,6 +491,11 @@ void ChessBoard::changeTurn() {
 		currentTeam = COLOR::BLACK;
 	}
 
+    // 紀錄盤面
+    moves.resize(currentMove + 2);
+    ++currentMove;
+    moves[currentMove] = this->toFEN();
+
 	emit changedTurnSignal(currentTeam);
 }
 
@@ -531,6 +536,25 @@ void ChessBoard::load(QString FEN) {
     moves.resize(1);
     moves[0] = FEN;
     currentMove = 0;
+}
+
+void ChessBoard::undo()
+{
+    if (currentMove == 0)
+        return;
+
+    --currentMove;
+    GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emit changedTurnSignal(currentTeam);
+}
+
+void ChessBoard::redo() {
+    if (currentMove == moves.size() - 1)
+        return;
+
+    ++currentMove;
+    GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emit changedTurnSignal(currentTeam);
 }
 
 

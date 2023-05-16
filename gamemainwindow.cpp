@@ -56,6 +56,8 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
     connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
     connect(ui->actionto_FEN, &QAction::triggered, this, &GameMainWindow::showFEN);
+    connect(ui->actionUndo, &QAction::triggered, ui->chessBoard, &ChessBoard::undo);
+    connect(ui->actionRedo, &QAction::triggered, ui->chessBoard, &ChessBoard::redo);
     connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
     connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
     connect(ui->chessBoard, &ChessBoard::changedTurnSignal, this, &GameMainWindow::updateInfo);
@@ -125,6 +127,7 @@ void GameMainWindow::startGame(SettingProtocol setting)
     }
 }
 
+// Intend: 輸出遊戲結束的訊息
 void GameMainWindow::gameOver(GameManager::State state)
 {
     if (state == GameManager::State::PLAYING)
@@ -140,6 +143,7 @@ void GameMainWindow::gameOver(GameManager::State state)
     ui->actionSurrender->setDisabled(true);
 }
 
+// Intend: 將Info顯示為color那方
 void GameMainWindow::updateInfo(COLOR color)
 {
     if (color == COLOR::WHITE) {
@@ -158,6 +162,7 @@ void GameMainWindow::updateInfo(COLOR color)
     ui->halfmoveLCD->display(ui->chessBoard->getHalfMove());
 }
 
+// Intend: 暫停遊戲
 void GameMainWindow::pause()
 {
     ui->black_timeLabel->stop();
@@ -169,6 +174,7 @@ void GameMainWindow::pause()
         ui->black_timeLabel->start();
 }
 
+// Intend: 重新顯示pregame並重新開始
 void GameMainWindow::newGame()
 {
     ui->white_TimeLabel->stop();
@@ -176,6 +182,7 @@ void GameMainWindow::newGame()
     pregameDialog->open();
 }
 
+// Intend: 顯示一個視窗，上面有盤面的FEN
 void GameMainWindow::showFEN()
 {
     QWidget* w = new QWidget;
@@ -188,7 +195,7 @@ void GameMainWindow::showFEN()
     v->addWidget(new QLabel("FEN: "));
     QLineEdit* line = new QLineEdit;
     line->setReadOnly(true);
-    line->setText(ui->chessBoard->toFEN());
+    line->setText(ui->chessBoard->getCurrentFEN());
     v->addWidget(line);
     QPushButton* clip = new QPushButton;
     clip->setIcon(QIcon(":/chessPieces/clipboard.png"));
