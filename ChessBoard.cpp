@@ -205,10 +205,10 @@ std::vector<Position> ChessBoard::getPawnCanEat(Position pos) const {
 	Position p1 = Position{ pos.row + deltaRow, pos.col + 1 };
 	Position p2 = Position{ pos.row + deltaRow, pos.col - 1 };
 
-	if (posIsOk(p1) && !isEmpty(p1) && isEnemy(pos, p1)) {
+    if ((posIsOk(p1) && !isEmpty(p1) && isEnemy(pos, p1)) || p1 == enPassant) {
 		canEat.push_back(p1);
-	}
-	if (posIsOk(p2) && !isEmpty(p2) && isEnemy(pos, p2)) {
+    }
+    if ((posIsOk(p2) && !isEmpty(p2) && isEnemy(pos, p2)) || p2 == enPassant) {
 		canEat.push_back(p2);
 	}
 
@@ -326,6 +326,21 @@ std::vector<Position> ChessBoard::getKingCanEat(Position pos) const {
 }
 
 void ChessBoard::chessPiecesClicked(Position pos) {
+    // 檢查吃過路兵
+    if (!firstClick && chessPieces[beforeClickPos.row][beforeClickPos.col]->getType() == TYPE::PAWN && pos == enPassant) {
+        std::vector<Position> canEat = getCanEat(beforeClickPos);
+        // 玩家可以吃過路兵
+        if (std::find(canEat.begin(), canEat.end(), enPassant) != canEat.end()) {
+            emphasizeClear(beforeClickPos);
+
+            move(beforeClickPos, enPassant);
+            chessPieces[beforeClickPos.row][enPassant.col]->setEmpty();
+            enPassant = {-1, -1};
+            changeTurn();
+            firstClick = true;
+            return;
+        }
+    }
 
 	// 點空格
 	if (firstClick && isEmpty(pos)) {
@@ -347,6 +362,12 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 		if (std::find(canGo.begin(), canGo.end(), pos) != canGo.end()) {
 			move(beforeClickPos, pos);
             GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
+            // update enPassant
+            if (chessPieces[pos.row][pos.col]->getType() == TYPE::PAWN && std::abs(pos.row - beforeClickPos.row) == 2)
+                enPassant = {(currentTeam == COLOR::WHITE ? pos.row + 1 : pos.row - 1), pos.col};
+            else
+                enPassant = {-1, -1};
+
 			changeTurn();
 		}
 
@@ -362,6 +383,7 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 		if (std::find(canEat.begin(), canEat.end(), pos) != canEat.end()) {
 			eat(beforeClickPos, pos);
             GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
+            enPassant = {-1, -1};
 			changeTurn();
 		}
 		firstClick = true;
