@@ -60,6 +60,7 @@ private:
 
 	void emphasizeCan(Position pos);
 	void emphasizeClear(Position pos);
+    void emphasizeClearAll();
 
 	bool pawnIsFirstMove(Position pos) const { return (pos.row == 6 && isWhite(pos)) || (pos.row == 1 && isBlack(pos)); }
 
@@ -89,6 +90,7 @@ public slots:
 	void chessPiecesClicked(Position pos);
     void undo();
     void redo();
+    void setState(GameManager::State state) { gameState = state; }
 	// bool eatPieces(Position from, Position to);
 
 };

@@ -44,7 +44,7 @@ std::vector<Position> ChessBoard::getCanMove(Position pos) const {
 	int row = pos.row;
 	int col = pos.col;
 
-	if (chessPieces[row][col] == nullptr) {
+    if (gameState != GameManager::State::PLAYING) {
 		return std::vector<Position>();
 	}
 
@@ -215,6 +215,10 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 }
 
 std::vector<Position> ChessBoard::getCanEat(Position pos) const {
+    if (gameState != GameManager::State::PLAYING) {
+        return std::vector<Position> ();
+    }
+
 	switch (chessPieces[pos.row][pos.col]->getType()) {
 	case TYPE::PAWN:
 		return getPawnCanEat(pos);
@@ -487,8 +491,17 @@ void ChessBoard::emphasizeClear(Position pos) {
 		chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
 	}
 	for (auto i : canEat) {
-		chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
-	}
+        chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
+    }
+}
+
+void ChessBoard::emphasizeClearAll()
+{
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            chessPieces[i][j]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
+        }
+    }
 }
 
 void ChessBoard::changeTurn() {
@@ -504,6 +517,12 @@ void ChessBoard::changeTurn() {
     moves.resize(currentMove + 2);
     ++currentMove;
     moves[currentMove] = this->toFEN();
+
+    // fifty move rule
+    if (halfmove >= 50) {
+        gameState = GameManager::State::DRAW;
+        emit gameOver(gameState);
+    }
 
 	emit changedTurnSignal(currentTeam);
 }
@@ -542,6 +561,8 @@ void ChessBoard::resizeEvent(QResizeEvent *event)
 void ChessBoard::load(QString FEN) {
     gameState = GameManager::State::PLAYING;
     GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emphasizeClearAll();
+    firstClick = true;
     moves.resize(1);
     moves[0] = FEN;
     currentMove = 0;
@@ -554,6 +575,8 @@ void ChessBoard::undo()
 
     --currentMove;
     GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emphasizeClearAll();
+    firstClick = true;
     emit changedTurnSignal(currentTeam);
 }
 
@@ -563,6 +586,8 @@ void ChessBoard::redo() {
 
     ++currentMove;
     GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emphasizeClearAll();
+    firstClick = true;
     emit changedTurnSignal(currentTeam);
 }
 

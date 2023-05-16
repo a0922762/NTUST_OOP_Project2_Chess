@@ -61,6 +61,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
     connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
     connect(ui->chessBoard, &ChessBoard::changedTurnSignal, this, &GameMainWindow::updateInfo);
+    connect(ui->chessBoard, &ChessBoard::gameOver, this, &GameMainWindow::gameOver);
 }
 
 // Intent: destruct the object
@@ -133,6 +134,7 @@ void GameMainWindow::gameOver(GameManager::State state)
     if (state == GameManager::State::PLAYING)
         return;
 
+    ui->chessBoard->setState(state);
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
     QString message = (state == GameManager::State::BLACK_WIN ? "<b>Black</b> Wins!!!!" :
