@@ -511,7 +511,14 @@ border: 1px solid grey;</string>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuAdvance">
+    <property name="title">
+     <string>Advance</string>
+    </property>
+    <addaction name="actionto_FEN"/>
+   </widget>
    <addaction name="menuOption"/>
+   <addaction name="menuAdvance"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
@@ -535,6 +542,11 @@ border: 1px solid grey;</string>
   <action name="actionPause">
    <property name="text">
     <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionto_FEN">
+   <property name="text">
+    <string>to FEN</string>
    </property>
   </action>
  </widget>

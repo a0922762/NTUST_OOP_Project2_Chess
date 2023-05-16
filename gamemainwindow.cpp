@@ -1,5 +1,8 @@
 
 #include "gamemainwindow.h"
+#include <QLineEdit>
+#include <QPushButton>
+#include <QClipboard>
 #include "ui_gamemainwindow.h"
 #include "pregame.h"
 #include "timedisplay.h"
@@ -52,6 +55,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     });
     connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
     connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
+    connect(ui->actionto_FEN, &QAction::triggered, this, &GameMainWindow::showFEN);
     connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
     connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
     connect(ui->chessBoard, &ChessBoard::changedTurnSignal, this, &GameMainWindow::updateInfo);
@@ -170,5 +174,31 @@ void GameMainWindow::newGame()
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
     pregameDialog->open();
+}
+
+void GameMainWindow::showFEN()
+{
+    QWidget* w = new QWidget;
+    w->setMinimumWidth(700);
+    w->setWindowTitle("FEN");
+    w->setPalette(this->palette());
+    w->setFont(QFont("cascadia mono"));
+    QHBoxLayout* v = new QHBoxLayout(w);
+
+    v->addWidget(new QLabel("FEN: "));
+    QLineEdit* line = new QLineEdit;
+    line->setReadOnly(true);
+    line->setText(ui->chessBoard->toFEN());
+    v->addWidget(line);
+    QPushButton* clip = new QPushButton;
+    clip->setIcon(QIcon(":/chessPieces/clipboard.png"));
+    connect(clip, &QPushButton::clicked, line, [line]() {
+        QApplication::clipboard()->setText(line->text());
+        line->setSelection(0, line->text().size());
+    });
+    v->addWidget(clip);
+
+    w->show();
+    w->setAttribute(Qt::WA_DeleteOnClose);
 }
 

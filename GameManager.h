@@ -20,5 +20,7 @@ public:
     static void updateForCastling(ChessPieces* board[8][8], int& castlingFlag, Position pre, Position post);
     static void checkForPromotion(ChessPieces* chess);
 
+    // 依盤面資訊生成FEN
+    static QString toFEN(const ChessPieces* pieces[8][8], COLOR moveTeam, int castlingFlag, Position enPassant, int halfmove, int fullmove);
     static void load(QString FEN, ChessPieces* pieces[8][8], COLOR& moveTeam, int& castlingFlag, Position& enPassant, int& halfmove, int& fullmove);
 };

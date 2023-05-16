@@ -525,4 +525,12 @@ void ChessBoard::resizeEvent(QResizeEvent *event)
     }
 }
 
+void ChessBoard::load(QString FEN) {
+    gameState = GameManager::State::PLAYING;
+    GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    moves.resize(1);
+    moves[0] = FEN;
+    currentMove = 0;
+}
+
 

@@ -22,6 +22,10 @@ private:
     int halfmove = 0;
     int fullmove = 0;
 
+    GameManager::State gameState;
+    std::vector<QString> moves;
+    int currentMove;
+
 private:
 	// get information
 	bool posIsOk(int row, int col) const { return row >= 0 && row < 8 && col >= 0 && col < 8; }
@@ -73,10 +77,12 @@ public:
     int getHalfMove() const { return halfmove; }
     int getFullMove() const { return fullmove; }
 
-    void load(QString FEN) {GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);}
+    void load(QString FEN);
+    QString toFEN() { return GameManager::toFEN((const ChessPieces*(*)[8])chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);}
 
 signals:
 	void changedTurnSignal(COLOR currentTeam);
+    void gameOver(GameManager::State);
 	void promotion(int &chooseId);
 public slots:
 	void chessPiecesClicked(Position pos);

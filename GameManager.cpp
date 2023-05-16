@@ -65,6 +65,62 @@ void GameManager::checkForPromotion(ChessPieces *chess)
     }
 }
 
+QString GameManager::toFEN(const ChessPieces* pieces[8][8], COLOR moveTeam, int castlingFlag, Position enPassant, int halfmove, int fullmove)
+{
+    std::ostringstream oss;
+
+    // chess placement
+    for (int row = 0; row < 8; ++row) {
+        int col = 0;
+        do {
+            if (pieces[row][col]->getType() == TYPE::EMPTY) {
+                int blankCount = 0;
+                do {
+                    ++blankCount;
+                    ++col;
+                } while (col < 8 && pieces[row][col]->getType() == TYPE::EMPTY);
+                oss << blankCount;
+            }
+            else {
+                TYPE type = pieces[row][col]->getType();
+                char icon = type == TYPE::BISHOP ? 'b' :
+                            type == TYPE::KING ?   'k' :
+                            type == TYPE::KNIGHT ? 'n' :
+                            type == TYPE::PAWN ?   'p' :
+                            type == TYPE::QUEEN ?  'q' :
+                                                   'r' ;
+                oss << (pieces[row][col]->isWhite() ? (char)toupper(icon) : (char)icon);
+                ++col;
+            }
+        } while (col < 8);
+        oss << (row == 7 ? ' ' : '/');
+    }
+
+    // white or black
+    oss << (moveTeam == COLOR::WHITE ? 'w' : 'b') << ' ';
+
+    // castling
+    bool hasoutput = false;
+    if (castlingFlag & (int)CASTLING::WHITE_K) oss << 'K', hasoutput = true;
+    if (castlingFlag & (int)CASTLING::WHITE_Q) oss << 'Q', hasoutput = true;
+    if (castlingFlag & (int)CASTLING::BLACK_k) oss << 'k', hasoutput = true;
+    if (castlingFlag & (int)CASTLING::BLACK_q) oss << 'q', hasoutput = true;
+    if (!hasoutput) oss << '-';
+    oss << ' ';
+
+    // enPassant
+    if (enPassant == Position{-1, -1})
+        oss << "- ";
+    else {
+        oss << (char)('a' + enPassant.col) << (8 - enPassant.row) << ' ';
+    }
+
+    // halfmove fullmove
+    oss << halfmove << ' ' << fullmove;
+
+    return QString(oss.str().c_str());
+}
+
 void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, int &castlingFlag, Position &enPassant, int &halfmove, int &fullmove)
 {
     std::istringstream iss(FEN.toStdString());

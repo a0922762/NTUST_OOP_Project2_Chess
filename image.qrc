@@ -29,5 +29,6 @@
     </qresource>
     <qresource prefix="/">
         <file>chessPieces/redDot.png</file>
+        <file>chessPieces/clipboard.png</file>
     </qresource>
 </RCC>

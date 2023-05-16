@@ -35,6 +35,7 @@ public slots:
     void updateInfo(COLOR color);
     void pause();
     void newGame();
+    void showFEN();
 
 signals:
 
