@@ -5,6 +5,7 @@
 #include <QWidget>
 #include <QDialog>
 #include <QKeyEvent>
+#include <QRegularExpressionValidator>
 #include "SettingProtocol.h"
 
 
@@ -43,6 +44,7 @@ signals:
 
 private:
     Ui::PreGame *ui;
+    QRegularExpressionValidator FEN_validator;
 };
 
 #endif // PREGAME_H

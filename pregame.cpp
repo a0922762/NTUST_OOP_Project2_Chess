@@ -10,6 +10,7 @@
 PreGame::PreGame(QWidget *parent)
     : QDialog(parent)
     , ui(new Ui::PreGame)
+    , FEN_validator(QRegularExpression("^[rnbqkpRNBQKP12345678/]+ [wb] (-|[KQkq]+) (-|[abcdefgh][12345678]) (\\d+) (\\d+)$"))
 {
     ui->setupUi(this);
     connect(ui->startGame, &QPushButton::clicked, this, &PreGame::sendSetting);
@@ -39,8 +40,9 @@ PreGame::PreGame(QWidget *parent)
 
     // validator
     // FEN格式： <棋子擺放> <移動方> <可否入堡> <過路兵的目標> <halfmove clock> <fullmove number>
+    // 為了方便輸入，所以對輸入用的validator做了一些調整
     ui->FEN_edit->setValidator(new QRegularExpressionValidator(
-        QRegularExpression("^[rnbqkpRNBQKP12345678/]+ [wb] (-|[KQkq]+) (-|[abcdefgh][12345678]) (\\d+) (\\d+)$")
+        QRegularExpression("^[rnbqkpRNBQKP12345678/]+ [wb]? (-|[KQkq]+)? (-|[abcdefgh][12345678]?)? (\\d*) (\\d*)$")
         ));
 }
 
@@ -82,8 +84,8 @@ void PreGame::sendSetting()
     else {
         setting.FEN = ui->FEN_edit->text();
         int pos = 0;
-        if (ui->FEN_edit->validator()->validate(setting.FEN, pos) != QValidator::Acceptable) {
-            QString regex = qobject_cast<const QRegularExpressionValidator*>(ui->FEN_edit->validator())->regularExpression().pattern();
+        if (FEN_validator.validate(setting.FEN, pos) != QValidator::Acceptable) {
+            QString regex = FEN_validator.regularExpression().pattern();
             QMessageBox::warning(this, "FEN load failed",
                                  "The FEN code doesn't match the regular expression: " + regex);
             return;

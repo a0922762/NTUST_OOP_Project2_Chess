@@ -116,7 +116,7 @@ void GameMainWindow::startGame(SettingProtocol setting)
     // enable all action
     QList<QAction*> actionList = this->findChildren<QAction*>(QRegularExpression("^action"));
     for (auto it = actionList.begin(); it != actionList.end(); ++it) {
-        qDebug() << *it << "Enabled";
+//        qDebug() << *it << "Enabled";
         (*it)->setEnabled(true);
     }
 }
