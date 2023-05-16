@@ -175,7 +175,7 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 
     //! 入堡，只為行動方考慮入堡
     auto allEmptyBetween = [this](Position p1, const Position& p2)->bool {
-        const Position delta = { p2.row - p1.row, p2.col - p1.col };
+        const Position delta = { 0, p2.col > p1.col ? 1 : -1 };
         while (true) {
             p1.row += delta.row; p1.col += delta.col;
             if (p1 == p2) return true;
