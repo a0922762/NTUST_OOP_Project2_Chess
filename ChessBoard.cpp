@@ -346,6 +346,7 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 
 		if (std::find(canGo.begin(), canGo.end(), pos) != canGo.end()) {
 			move(beforeClickPos, pos);
+            GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
 			changeTurn();
 		}
 
@@ -360,6 +361,7 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 	
 		if (std::find(canEat.begin(), canEat.end(), pos) != canEat.end()) {
 			eat(beforeClickPos, pos);
+            GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
 			changeTurn();
 		}
 		firstClick = true;

@@ -67,8 +67,6 @@ public:
     void move(Position from, Position to);
 	void eat(Position eater, Position eaten);
 
-	// bool movePieces(Position from, Position to);
-
     void resizeEvent(QResizeEvent* event) override;
 
     COLOR getTurn() const { return currentTeam; }

@@ -1,8 +1,21 @@
 
 #include "GameManager.h"
+#include "promotiondialog.h"
 #include <sstream>
 #include <cstring>
 #include <QDebug>
+
+void GameManager::checkForPromotion(ChessPieces *chess)
+{
+    if (chess->getType() == TYPE::PAWN) {
+        if (chess->isWhite() && chess->getRow() == 0) {
+            chess->setType(PromotionDialog::showDialog(COLOR::WHITE), COLOR::WHITE);
+        }
+        else if (chess->isBlack() && chess->getRow() == 7) {
+            chess->setType(PromotionDialog::showDialog(COLOR::BLACK), COLOR::BLACK);
+        }
+    }
+}
 
 void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, int &castlingFlag, Position &enPassant, int &halfmove, int &fullmove)
 {

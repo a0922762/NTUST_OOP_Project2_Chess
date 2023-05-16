@@ -16,6 +16,7 @@ public:
 private:
 
 public:
+    static void checkForPromotion(ChessPieces* chess);
 
     static void load(QString FEN, ChessPieces* pieces[8][8], COLOR& moveTeam, int& castlingFlag, Position& enPassant, int& halfmove, int& fullmove);
 };

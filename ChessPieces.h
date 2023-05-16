@@ -50,12 +50,8 @@ public:
 	int getRow() const { return pos.row; }
 	int getCol() const { return pos.col; }
 	Position& getPos() { return pos; }
-    const QPixmap* getImage() const { return this->pixmap(); }
     const QString& getImgAddr() const { return this->imageAddress; }
 	const Position& getPos() const { return pos; }
-
-	
-
 	TYPE getType() const { return type; }
 
 	// 當滑鼠點擊時觸發
