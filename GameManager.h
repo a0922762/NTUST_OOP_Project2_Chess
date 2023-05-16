@@ -16,6 +16,8 @@ public:
 private:
 
 public:
+    // 1. 若走出入堡，移動城堡。 2. 依移動更新castlingFlag
+    static void updateForCastling(ChessPieces* board[8][8], int& castlingFlag, Position pre, Position post);
     static void checkForPromotion(ChessPieces* chess);
 
     static void load(QString FEN, ChessPieces* pieces[8][8], COLOR& moveTeam, int& castlingFlag, Position& enPassant, int& halfmove, int& fullmove);

@@ -5,6 +5,54 @@
 #include <cstring>
 #include <QDebug>
 
+// 1. 若走出入堡，移動城堡。 2. 依移動更新castlingFlag
+void GameManager::updateForCastling(ChessPieces *board[8][8], int &castlingFlag, Position pre, Position post)
+{
+    // 移國王，檢查入堡
+    if (board[post.row][post.col]->getType() == TYPE::KING) {
+        // 清掉國王方的入堡旗標
+        castlingFlag &= ~(board[post.row][post.col]->isWhite() ? (int)CASTLING::WHITE_K | (int)CASTLING::WHITE_Q
+                                                               : (int)CASTLING::BLACK_k | (int)CASTLING::BLACK_q);
+        qDebug() << QString::number(castlingFlag, 2);
+
+        Position whiteKingInit = {7, 4};
+        Position blackKingInit = {0, 4};
+
+        // white kingside
+        if (pre == whiteKingInit && post == Position{7, 6}) {
+            board[7][5]->setType(TYPE::ROOK, COLOR::WHITE);
+            board[7][7]->setEmpty();
+        }
+        // white queenside
+        else if (pre == whiteKingInit && post == Position{7, 2}) {
+            board[7][3]->setType(TYPE::ROOK, COLOR::WHITE);
+            board[7][0]->setEmpty();
+        }
+        // black kingside
+        else if (pre == blackKingInit && post == Position{0, 6}) {
+            board[0][5]->setType(TYPE::ROOK, COLOR::BLACK);
+            board[0][7]->setEmpty();
+        }
+        // black queenside
+        else if (pre == blackKingInit && post == Position{0, 2}) {
+            board[0][3]->setType(TYPE::ROOK, COLOR::BLACK);
+            board[0][0]->setEmpty();
+        }
+    }
+    // 移城堡，清flag
+    else if (board[post.row][post.col]->getType() == TYPE::ROOK) {
+        if (pre == Position{0, 0})
+            castlingFlag &= ~(int)CASTLING::BLACK_q;
+        else if (pre == Position{0, 7})
+            castlingFlag &= ~(int)CASTLING::BLACK_k;
+        else if (pre == Position{7, 0})
+            castlingFlag &= ~(int)CASTLING::WHITE_Q;
+        else if (pre == Position{7, 7})
+            castlingFlag &= ~(int)CASTLING::WHITE_K;
+        qDebug() << QString::number(castlingFlag, 2);
+    }
+}
+
 void GameManager::checkForPromotion(ChessPieces *chess)
 {
     if (chess->getType() == TYPE::PAWN) {

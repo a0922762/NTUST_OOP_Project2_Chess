@@ -11,7 +11,6 @@ using namespace std;
 ChessBoard::ChessBoard(QWidget* parent)
 	: QWidget(parent), firstClick(true), currentTeam(COLOR::WHITE)
 {
-	//TODO: initialize chessPieces
 	//GUI
 
     this->setMinimumSize(INIT_PIECE_SIZE * 8, INIT_PIECE_SIZE * 8);
@@ -39,9 +38,6 @@ ChessBoard::ChessBoard(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 	this->setLayout(layout);
-
-
-
 }
 
 std::vector<Position> ChessBoard::getCanMove(Position pos) const {
@@ -176,6 +172,45 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 			canMove.push_back(newPos);
 		}
 	}
+
+    //! 入堡，只為行動方考慮入堡
+    auto allEmptyBetween = [this](Position p1, const Position& p2)->bool {
+        const Position delta = { p2.row - p1.row, p2.col - p1.col };
+        while (true) {
+            p1.row += delta.row; p1.col += delta.col;
+            if (p1 == p2) return true;
+            if (!isEmpty(p1)) break;
+            //! TODO: 檢查是否會被check
+        }
+        return false;
+    };
+    auto isKing = [this](int row, int col)->bool {
+        return chessPieces[row][col]->getType() == TYPE::KING && isTurn({row, col});
+    };
+    auto isRook = [this](int row, int col)->bool {
+        return chessPieces[row][col]->getType() == TYPE::ROOK && isTurn({row, col});
+    };
+    if (isWhite(pos)) {
+        // white kingside
+        if (castlingFlag & (int)CASTLING::WHITE_K && isKing(7, 4) && isRook(7, 7) && allEmptyBetween({7, 4}, {7, 7})) {
+            canMove.push_back({7, 6});
+        }
+        // white queenside
+        if (castlingFlag & (int)CASTLING::WHITE_Q && isKing(7, 4) && isRook(7, 0) && allEmptyBetween({7, 4}, {7, 0})) {
+            canMove.push_back({7, 2});
+        }
+    }
+    else {
+        // black kingside
+        if (castlingFlag & (int)CASTLING::BLACK_k && isKing(0, 4) && isRook(0, 7) && allEmptyBetween({0, 4}, {0, 7})) {
+            canMove.push_back({0, 6});
+        }
+        // black queenside
+        if (castlingFlag & (int)CASTLING::BLACK_q && isKing(0, 4) && isRook(0, 0) && allEmptyBetween({0, 4}, {0, 0})) {
+            canMove.push_back({0, 2});
+        }
+    }
+
 	return canMove;
 }
 
@@ -361,6 +396,7 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 
 		if (std::find(canGo.begin(), canGo.end(), pos) != canGo.end()) {
 			move(beforeClickPos, pos);
+            GameManager::updateForCastling(chessPieces, castlingFlag, beforeClickPos, pos);
             GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
             // update enPassant
             if (chessPieces[pos.row][pos.col]->getType() == TYPE::PAWN && std::abs(pos.row - beforeClickPos.row) == 2)
@@ -381,7 +417,11 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 		emphasizeClear(beforeClickPos);
 	
 		if (std::find(canEat.begin(), canEat.end(), pos) != canEat.end()) {
+            // 若城堡被吃掉，更新castlingFlag
+            if (chessPieces[pos.row][pos.col]->getType() == TYPE::ROOK)
+                GameManager::updateForCastling(chessPieces, castlingFlag, pos, pos);
 			eat(beforeClickPos, pos);
+            GameManager::updateForCastling(chessPieces, castlingFlag, beforeClickPos, pos);
             GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
             enPassant = {-1, -1};
 			changeTurn();
