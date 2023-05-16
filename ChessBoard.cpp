@@ -373,6 +373,7 @@ void ChessBoard::chessPiecesClicked(Position pos) {
             enPassant = {-1, -1};
             changeTurn();
             firstClick = true;
+            halfmove = 0;
             return;
         }
     }
@@ -398,12 +399,19 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 			move(beforeClickPos, pos);
             GameManager::updateForCastling(chessPieces, castlingFlag, beforeClickPos, pos);
             GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
-            // update enPassant
-            if (chessPieces[pos.row][pos.col]->getType() == TYPE::PAWN && std::abs(pos.row - beforeClickPos.row) == 2)
-                enPassant = {(currentTeam == COLOR::WHITE ? pos.row + 1 : pos.row - 1), pos.col};
-            else
-                enPassant = {-1, -1};
 
+            // enPassant and halfmove
+            if (chessPieces[pos.row][pos.col]->getType() == TYPE::PAWN) { // if move pawn
+                if (std::abs(pos.row - beforeClickPos.row) == 2)  // if move forward 2 blocks
+                    enPassant = {(currentTeam == COLOR::WHITE ? pos.row + 1 : pos.row - 1), pos.col};
+                else
+                    enPassant = {-1, -1};
+                halfmove = 0;
+            }
+            else {
+                enPassant = {-1, -1};
+                ++halfmove;
+            }
 			changeTurn();
 		}
 
@@ -424,6 +432,7 @@ void ChessBoard::chessPiecesClicked(Position pos) {
             GameManager::updateForCastling(chessPieces, castlingFlag, beforeClickPos, pos);
             GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
             enPassant = {-1, -1};
+            halfmove = 0;
 			changeTurn();
 		}
 		firstClick = true;
