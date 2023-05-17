@@ -43,27 +43,57 @@ ChessBoard::ChessBoard(QWidget* parent)
 std::vector<Position> ChessBoard::getCanMove(Position pos) const {
 	int row = pos.row;
 	int col = pos.col;
+    std::vector<Position> canGo;
+    TYPE chessTYPE = chessPieces[row][col]->getType();
 
     if (gameState != GameManager::State::PLAYING) {
-		return std::vector<Position>();
+        return canGo;
 	}
 
-	switch (chessPieces[row][col]->getType()) {
+    // 被multiple check，則只有國王可動
+    if (numOfChecking >= 2 && chessTYPE != TYPE::KING) {
+        return canGo;
+    }
+
+    // 被pin住，不能走
+    if (isDonimated(pos) && chessTYPE != TYPE::KING) {
+        return canGo;
+    }
+
+    switch (chessTYPE) {
 	case TYPE::PAWN:
-		return getPawnCanMove(pos);
+        canGo = getPawnCanMove(pos);
+        break;
 	case TYPE::ROOK:
-		return getRookCanMove(pos);
+        canGo = getRookCanMove(pos);
+        break;
 	case TYPE::KNIGHT:
-		return getKnightCanMove(pos);
+        canGo = getKnightCanMove(pos);
+        break;
 	case TYPE::BISHOP:
-		return getBishopCanMove(pos);
+        canGo = getBishopCanMove(pos);
+        break;
 	case TYPE::QUEEN:
-		return getQueenCanMove(pos);
+        canGo = getQueenCanMove(pos);
+        break;
 	case TYPE::KING:
-		return getKingCanMove(pos);
+        // 被將軍時，國王走法的處理放在函式裡
+        return getKingCanMove(pos);
+    default:
+        return canGo;
 	}
 
-	return std::vector<Position>();
+    // 國王被將軍
+    if (numOfChecking == 1) {
+        // 必需要能擋在城堡、皇后、主教中間（吃掉幽靈攻擊者）
+        for (auto& p : canGo) {
+            if (!isGhostAttacker(p))
+                p = {-1, -1};
+        }
+        canGo.erase(std::remove(canGo.begin(), canGo.end(), Position{-1, -1}), canGo.end());
+    }
+
+    return canGo;
 }
 
 std::vector<Position> ChessBoard::getPawnCanMove(Position pos) const {
@@ -168,48 +198,57 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 	int deltaCol[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
-		if (posIsOk(newPos) && isEmpty(newPos)) {
+        if (posIsOk(newPos) && isEmpty(newPos) && !isDonimated(newPos)) {
 			canMove.push_back(newPos);
 		}
 	}
 
     //! 入堡，只為行動方考慮入堡
-    auto allEmptyBetween = [this](Position p1, const Position& p2)->bool {
-        const Position delta = { 0, p2.col > p1.col ? 1 : -1 };
-        while (true) {
-            p1.row += delta.row; p1.col += delta.col;
-            if (p1 == p2) return true;
-            if (!isEmpty(p1)) break;
-            //! TODO: 檢查是否會被check
+    if (numOfChecking == 0) {
+        auto allEmptyBetween = [this](Position p1, const Position& p2)->bool {
+            const Position delta = { 0, p2.col > p1.col ? 1 : -1 };
+            int needAvoidCheck = 2; // 檢查2次
+            while (true) {
+                p1 += delta;
+                if (p1 == p2) return true;
+                if (!isEmpty(p1)) break;
+                //! TODO: 檢查是否會被check
+                if (needAvoidCheck) {
+                    if (isDonimated(p1))
+                        break;
+                    --needAvoidCheck;
+                }
+            }
+            return false;
+        };
+        auto isKing = [this](int row, int col)->bool {
+            return chessPieces[row][col]->getType() == TYPE::KING && isTurn({row, col});
+        };
+        auto isRook = [this](int row, int col)->bool {
+            return chessPieces[row][col]->getType() == TYPE::ROOK && isTurn({row, col});
+        };
+        if (isWhite(pos)) {
+            // white kingside
+            if (castlingFlag & (int)CASTLING::WHITE_K && isKing(7, 4) && isRook(7, 7) && allEmptyBetween({7, 4}, {7, 7})) {
+                canMove.push_back({7, 6});
+            }
+            // white queenside
+            if (castlingFlag & (int)CASTLING::WHITE_Q && isKing(7, 4) && isRook(7, 0) && allEmptyBetween({7, 4}, {7, 0})) {
+                canMove.push_back({7, 2});
+            }
         }
-        return false;
-    };
-    auto isKing = [this](int row, int col)->bool {
-        return chessPieces[row][col]->getType() == TYPE::KING && isTurn({row, col});
-    };
-    auto isRook = [this](int row, int col)->bool {
-        return chessPieces[row][col]->getType() == TYPE::ROOK && isTurn({row, col});
-    };
-    if (isWhite(pos)) {
-        // white kingside
-        if (castlingFlag & (int)CASTLING::WHITE_K && isKing(7, 4) && isRook(7, 7) && allEmptyBetween({7, 4}, {7, 7})) {
-            canMove.push_back({7, 6});
-        }
-        // white queenside
-        if (castlingFlag & (int)CASTLING::WHITE_Q && isKing(7, 4) && isRook(7, 0) && allEmptyBetween({7, 4}, {7, 0})) {
-            canMove.push_back({7, 2});
+        else {
+            // black kingside
+            if (castlingFlag & (int)CASTLING::BLACK_k && isKing(0, 4) && isRook(0, 7) && allEmptyBetween({0, 4}, {0, 7})) {
+                canMove.push_back({0, 6});
+            }
+            // black queenside
+            if (castlingFlag & (int)CASTLING::BLACK_q && isKing(0, 4) && isRook(0, 0) && allEmptyBetween({0, 4}, {0, 0})) {
+                canMove.push_back({0, 2});
+            }
         }
     }
-    else {
-        // black kingside
-        if (castlingFlag & (int)CASTLING::BLACK_k && isKing(0, 4) && isRook(0, 7) && allEmptyBetween({0, 4}, {0, 7})) {
-            canMove.push_back({0, 6});
-        }
-        // black queenside
-        if (castlingFlag & (int)CASTLING::BLACK_q && isKing(0, 4) && isRook(0, 0) && allEmptyBetween({0, 4}, {0, 0})) {
-            canMove.push_back({0, 2});
-        }
-    }
+
 
 	return canMove;
 }

@@ -53,6 +53,10 @@ private:
 	bool isEnemy(Position own, Position enemy) const { return isWhite(own) != isWhite(enemy); }
     bool isTurn(Position pos) const { return isWhite(pos) == (currentTeam == COLOR::WHITE); }
 
+    bool isDonimated(Position pos) const { return enemyTerritory[pos.row][pos.col].isDonimated; }
+    bool isRealAttacker(Position pos) const { return !isEmpty(pos) && enemyTerritory[pos.row][pos.col].isChecking;}
+    bool isGhostAttacker(Position pos) const { return isEmpty(pos) && enemyTerritory[pos.row][pos.col].isChecking;}
+
 	// get can move position
     // gameState != PLAYING時，回傳空vector
     // 回傳可走到的空格
