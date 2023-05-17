@@ -241,6 +241,8 @@ void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, 
 
 void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
 {
+    board->gameState = GameManager::State::PLAYING;
+
     // 清空enemyTerritory和numOfChecking
     board->numOfChecking = 0;
     for (int r = 0; r < 8; ++r) {

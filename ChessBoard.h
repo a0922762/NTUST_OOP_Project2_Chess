@@ -52,6 +52,7 @@ private:
 	bool isBlack(Position pos) const { return isBlack(pos.row, pos.col); }
 	bool isEnemy(Position own, Position enemy) const { return isWhite(own) != isWhite(enemy); }
     bool isTurn(Position pos) const { return isWhite(pos) == (currentTeam == COLOR::WHITE); }
+    Position getOurKing() const;
 
     bool isDonimated(Position pos) const { return enemyTerritory[pos.row][pos.col].isDonimated; }
     bool isRealAttacker(Position pos) const { return !isEmpty(pos) && enemyTerritory[pos.row][pos.col].isChecking;}

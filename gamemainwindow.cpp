@@ -128,8 +128,11 @@ void GameMainWindow::startGame(SettingProtocol setting)
 // Intend: 輸出遊戲結束的訊息
 void GameMainWindow::gameOver(GameManager::State state)
 {
-    if (state == GameManager::State::PLAYING)
+    if (state == GameManager::State::PLAYING) {
+        ui->actionPause->setDisabled(false);
+        ui->actionSurrender->setDisabled(false);
         return;
+    }
 
     ui->chessBoard->setState(state);
     ui->white_TimeLabel->stop();

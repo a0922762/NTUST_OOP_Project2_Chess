@@ -40,6 +40,17 @@ ChessBoard::ChessBoard(QWidget* parent)
 	this->setLayout(layout);
 }
 
+Position ChessBoard::getOurKing() const
+{
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (isTurn({r, c}) && chessPieces[r][c]->getType() == TYPE::KING)
+                return {r, c};
+        }
+    }
+    return {-1, -1};
+}
+
 std::vector<Position> ChessBoard::getCanMove(Position pos) const {
 	int row = pos.row;
 	int col = pos.col;
@@ -55,8 +66,8 @@ std::vector<Position> ChessBoard::getCanMove(Position pos) const {
         return canGo;
     }
 
-    // 被pin住，不能走
-    if (isDonimated(pos) && chessTYPE != TYPE::KING) {
+    // 被pin住的主教、騎士 不能走
+    if (isDonimated(pos) && (chessTYPE == TYPE::BISHOP || chessTYPE == TYPE::KNIGHT)) {
         return canGo;
     }
 
@@ -91,6 +102,24 @@ std::vector<Position> ChessBoard::getCanMove(Position pos) const {
                 p = {-1, -1};
         }
         canGo.erase(std::remove(canGo.begin(), canGo.end(), Position{-1, -1}), canGo.end());
+    }
+    // 被pin住，將所有不在和國王同列或同欄的移動清掉
+    else if (isDonimated(pos)){
+        Position kingPos = getOurKing();
+        // 在同一列
+        if (kingPos.row == pos.row) {
+            // 將所有移到不同列的走法清掉
+            canGo.erase(
+                std::remove_if(canGo.begin(), canGo.end(), [r = kingPos.row](const Position& p) { return p.row != r; })
+                , canGo.end());
+        }
+        // 在同一欄
+        else {
+            // 將所有移到不同欄的走法清掉
+            canGo.erase(
+                std::remove_if(canGo.begin(), canGo.end(), [c = kingPos.col](const Position& p) { return p.col != c; })
+                , canGo.end());
+        }
     }
 
     return canGo;
@@ -261,13 +290,13 @@ std::vector<Position> ChessBoard::getCanEat(Position pos) const {
         return canEat;
     }
 
-    // 被pin住，不能動
-    if (isDonimated(pos) && chessTYPE != TYPE::KING) {
+    // 被multiple check，只有王能動
+    if (numOfChecking >= 2 && chessTYPE != TYPE::KING) {
         return canEat;
     }
 
-    // 被multiple check，只有王能動
-    if (numOfChecking >= 2 && chessTYPE != TYPE::KING) {
+    // 被pin住的主教、騎士 不能走
+    if (isDonimated(pos) && (chessTYPE == TYPE::BISHOP || chessTYPE == TYPE::KNIGHT)) {
         return canEat;
     }
 
@@ -302,6 +331,24 @@ std::vector<Position> ChessBoard::getCanEat(Position pos) const {
                 p = {-1, -1};
         }
         canEat.erase(std::remove(canEat.begin(), canEat.end(), Position{-1, -1}), canEat.end());
+    }
+    // 被pin住，將所有不在和國王同列或同欄的移動清掉
+    else if (isDonimated(pos)){
+        Position kingPos = getOurKing();
+        // 在同一列
+        if (kingPos.row == pos.row) {
+            // 將所有移到不同列的走法清掉
+            canEat.erase(
+                std::remove_if(canEat.begin(), canEat.end(), [r = kingPos.row](const Position& p) { return p.row != r; })
+                , canEat.end());
+        }
+        // 在同一欄
+        else {
+            // 將所有移到不同欄的走法清掉
+            canEat.erase(
+                std::remove_if(canEat.begin(), canEat.end(), [c = kingPos.col](const Position& p) { return p.col != c; })
+                , canEat.end());
+        }
     }
 
     return canEat;
@@ -635,7 +682,6 @@ void ChessBoard::resizeEvent(QResizeEvent *event)
 }
 
 void ChessBoard::load(QString FEN) {
-    gameState = GameManager::State::PLAYING;
     GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
     emphasizeClearAll();
     firstClick = true;
