@@ -11,7 +11,6 @@ using namespace std;
 ChessBoard::ChessBoard(QWidget* parent)
 	: QWidget(parent), firstClick(true), currentTeam(COLOR::WHITE)
 {
-	//TODO: initialize chessPieces
 	//GUI
 
     this->setMinimumSize(INIT_PIECE_SIZE * 8, INIT_PIECE_SIZE * 8);
@@ -39,35 +38,91 @@ ChessBoard::ChessBoard(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 	this->setLayout(layout);
+}
 
-
-
+Position ChessBoard::getOurKing() const
+{
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (isTurn({r, c}) && chessPieces[r][c]->getType() == TYPE::KING)
+                return {r, c};
+        }
+    }
+    return {-1, -1};
 }
 
 std::vector<Position> ChessBoard::getCanMove(Position pos) const {
 	int row = pos.row;
 	int col = pos.col;
+    std::vector<Position> canGo;
+    TYPE chessTYPE = chessPieces[row][col]->getType();
 
-	if (chessPieces[row][col] == nullptr) {
-		return std::vector<Position>();
+    if (gameState != GameManager::State::PLAYING) {
+        return canGo;
 	}
 
-	switch (chessPieces[row][col]->getType()) {
+    // 被multiple check，則只有國王可動
+    if (numOfChecking >= 2 && chessTYPE != TYPE::KING) {
+        return canGo;
+    }
+
+    // 被pin住的主教、騎士 不能走
+    if (isDonimated(pos) && (chessTYPE == TYPE::BISHOP || chessTYPE == TYPE::KNIGHT)) {
+        return canGo;
+    }
+
+    switch (chessTYPE) {
 	case TYPE::PAWN:
-		return getPawnCanMove(pos);
+        canGo = getPawnCanMove(pos);
+        break;
 	case TYPE::ROOK:
-		return getRookCanMove(pos);
+        canGo = getRookCanMove(pos);
+        break;
 	case TYPE::KNIGHT:
-		return getKnightCanMove(pos);
+        canGo = getKnightCanMove(pos);
+        break;
 	case TYPE::BISHOP:
-		return getBishopCanMove(pos);
+        canGo = getBishopCanMove(pos);
+        break;
 	case TYPE::QUEEN:
-		return getQueenCanMove(pos);
+        canGo = getQueenCanMove(pos);
+        break;
 	case TYPE::KING:
-		return getKingCanMove(pos);
+        // 被將軍時，國王走法的處理放在函式裡
+        return getKingCanMove(pos);
+    default:
+        return canGo;
 	}
 
-	return std::vector<Position>();
+    // 國王被將軍
+    if (numOfChecking == 1) {
+        // 必需要能擋在城堡、皇后、主教中間（吃掉幽靈攻擊者）
+        for (auto& p : canGo) {
+            if (!isGhostAttacker(p))
+                p = {-1, -1};
+        }
+        canGo.erase(std::remove(canGo.begin(), canGo.end(), Position{-1, -1}), canGo.end());
+    }
+    // 被pin住，將所有不在和國王同列或同欄的移動清掉
+    else if (isDonimated(pos)){
+        Position kingPos = getOurKing();
+        // 在同一列
+        if (kingPos.row == pos.row) {
+            // 將所有移到不同列的走法清掉
+            canGo.erase(
+                std::remove_if(canGo.begin(), canGo.end(), [r = kingPos.row](const Position& p) { return p.row != r; })
+                , canGo.end());
+        }
+        // 在同一欄
+        else {
+            // 將所有移到不同欄的走法清掉
+            canGo.erase(
+                std::remove_if(canGo.begin(), canGo.end(), [c = kingPos.col](const Position& p) { return p.col != c; })
+                , canGo.end());
+        }
+    }
+
+    return canGo;
 }
 
 std::vector<Position> ChessBoard::getPawnCanMove(Position pos) const {
@@ -172,30 +227,131 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 	int deltaCol[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
-		if (posIsOk(newPos) && isEmpty(newPos)) {
+        if (posIsOk(newPos) && isEmpty(newPos) && !isDonimated(newPos)) {
 			canMove.push_back(newPos);
 		}
 	}
+
+    //! 入堡，只為行動方考慮入堡
+    if (numOfChecking == 0) {
+        auto allEmptyBetween = [this](Position p1, const Position& p2)->bool {
+            const Position delta = { 0, p2.col > p1.col ? 1 : -1 };
+            int needAvoidCheck = 2; // 檢查2次
+            while (true) {
+                p1 += delta;
+                if (p1 == p2) return true;
+                if (!isEmpty(p1)) break;
+                //! TODO: 檢查是否會被check
+                if (needAvoidCheck) {
+                    if (isDonimated(p1))
+                        break;
+                    --needAvoidCheck;
+                }
+            }
+            return false;
+        };
+        auto isKing = [this](int row, int col)->bool {
+            return chessPieces[row][col]->getType() == TYPE::KING && isTurn({row, col});
+        };
+        auto isRook = [this](int row, int col)->bool {
+            return chessPieces[row][col]->getType() == TYPE::ROOK && isTurn({row, col});
+        };
+        if (isWhite(pos)) {
+            // white kingside
+            if (castlingFlag & (int)CASTLING::WHITE_K && isKing(7, 4) && isRook(7, 7) && allEmptyBetween({7, 4}, {7, 7})) {
+                canMove.push_back({7, 6});
+            }
+            // white queenside
+            if (castlingFlag & (int)CASTLING::WHITE_Q && isKing(7, 4) && isRook(7, 0) && allEmptyBetween({7, 4}, {7, 0})) {
+                canMove.push_back({7, 2});
+            }
+        }
+        else {
+            // black kingside
+            if (castlingFlag & (int)CASTLING::BLACK_k && isKing(0, 4) && isRook(0, 7) && allEmptyBetween({0, 4}, {0, 7})) {
+                canMove.push_back({0, 6});
+            }
+            // black queenside
+            if (castlingFlag & (int)CASTLING::BLACK_q && isKing(0, 4) && isRook(0, 0) && allEmptyBetween({0, 4}, {0, 0})) {
+                canMove.push_back({0, 2});
+            }
+        }
+    }
+
+
 	return canMove;
 }
 
 std::vector<Position> ChessBoard::getCanEat(Position pos) const {
-	switch (chessPieces[pos.row][pos.col]->getType()) {
+    std::vector<Position> canEat;
+    TYPE chessTYPE = chessPieces[pos.row][pos.col]->getType();
+
+    if (gameState != GameManager::State::PLAYING) {
+        return canEat;
+    }
+
+    // 被multiple check，只有王能動
+    if (numOfChecking >= 2 && chessTYPE != TYPE::KING) {
+        return canEat;
+    }
+
+    // 被pin住的主教、騎士 不能走
+    if (isDonimated(pos) && (chessTYPE == TYPE::BISHOP || chessTYPE == TYPE::KNIGHT)) {
+        return canEat;
+    }
+
+    switch (chessTYPE) {
 	case TYPE::PAWN:
-		return getPawnCanEat(pos);
+        canEat = getPawnCanEat(pos);
+        break;
 	case TYPE::ROOK:
-		return getRookCanEat(pos);
+        canEat = getRookCanEat(pos);
+        break;
 	case TYPE::KNIGHT:
-		return getKnightCanEat(pos);
+        canEat = getKnightCanEat(pos);
+        break;
 	case TYPE::BISHOP:
-		return getBishopCanEat(pos);
+        canEat = getBishopCanEat(pos);
+        break;
 	case TYPE::QUEEN:
-		return getQueenCanEat(pos);
+        canEat = getQueenCanEat(pos);
+        break;
 	case TYPE::KING:
-		return getKingCanEat(pos);
+        // 國王走法的處理寫在函式中
+        return getKingCanEat(pos);
 	default:
-		return std::vector<Position>();
+        return canEat;
 	}
+
+    // 若被check
+    if (numOfChecking == 1) {
+        // 必須要能吃掉實際攻擊者
+        for (auto& p : canEat) {
+            if (!isRealAttacker(p))
+                p = {-1, -1};
+        }
+        canEat.erase(std::remove(canEat.begin(), canEat.end(), Position{-1, -1}), canEat.end());
+    }
+    // 被pin住，將所有不在和國王同列或同欄的移動清掉
+    else if (isDonimated(pos)){
+        Position kingPos = getOurKing();
+        // 在同一列
+        if (kingPos.row == pos.row) {
+            // 將所有移到不同列的走法清掉
+            canEat.erase(
+                std::remove_if(canEat.begin(), canEat.end(), [r = kingPos.row](const Position& p) { return p.row != r; })
+                , canEat.end());
+        }
+        // 在同一欄
+        else {
+            // 將所有移到不同欄的走法清掉
+            canEat.erase(
+                std::remove_if(canEat.begin(), canEat.end(), [c = kingPos.col](const Position& p) { return p.col != c; })
+                , canEat.end());
+        }
+    }
+
+    return canEat;
 }
 
 std::vector<Position> ChessBoard::getPawnCanEat(Position pos) const {
@@ -205,10 +361,10 @@ std::vector<Position> ChessBoard::getPawnCanEat(Position pos) const {
 	Position p1 = Position{ pos.row + deltaRow, pos.col + 1 };
 	Position p2 = Position{ pos.row + deltaRow, pos.col - 1 };
 
-	if (posIsOk(p1) && !isEmpty(p1) && isEnemy(pos, p1)) {
+    if ((posIsOk(p1) && !isEmpty(p1) && isEnemy(pos, p1)) || p1 == enPassant) {
 		canEat.push_back(p1);
-	}
-	if (posIsOk(p2) && !isEmpty(p2) && isEnemy(pos, p2)) {
+    }
+    if ((posIsOk(p2) && !isEmpty(p2) && isEnemy(pos, p2)) || p2 == enPassant) {
 		canEat.push_back(p2);
 	}
 
@@ -318,7 +474,7 @@ std::vector<Position> ChessBoard::getKingCanEat(Position pos) const {
 	int deltaCol[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
-		if (posIsOk(newPos) && !isEmpty(newPos) && isEnemy(pos, newPos)) {
+        if (posIsOk(newPos) && !isEmpty(newPos) && isEnemy(pos, newPos) && !isDonimated(newPos)) {
 			canEat.push_back(newPos);
 		}
 	}
@@ -326,6 +482,22 @@ std::vector<Position> ChessBoard::getKingCanEat(Position pos) const {
 }
 
 void ChessBoard::chessPiecesClicked(Position pos) {
+    // 檢查吃過路兵
+    if (!firstClick && chessPieces[beforeClickPos.row][beforeClickPos.col]->getType() == TYPE::PAWN && pos == enPassant) {
+        std::vector<Position> canEat = getCanEat(beforeClickPos);
+        // 玩家可以吃過路兵
+        if (std::find(canEat.begin(), canEat.end(), enPassant) != canEat.end()) {
+            emphasizeClear(beforeClickPos);
+
+            move(beforeClickPos, enPassant);
+            chessPieces[beforeClickPos.row][enPassant.col]->setEmpty();
+            enPassant = {-1, -1};
+            changeTurn();
+            firstClick = true;
+            halfmove = 0;
+            return;
+        }
+    }
 
 	// 點空格
 	if (firstClick && isEmpty(pos)) {
@@ -346,6 +518,21 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 
 		if (std::find(canGo.begin(), canGo.end(), pos) != canGo.end()) {
 			move(beforeClickPos, pos);
+            GameManager::updateForCastling(chessPieces, castlingFlag, beforeClickPos, pos);
+            GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
+
+            // enPassant and halfmove
+            if (chessPieces[pos.row][pos.col]->getType() == TYPE::PAWN) { // if move pawn
+                if (std::abs(pos.row - beforeClickPos.row) == 2)  // if move forward 2 blocks
+                    enPassant = {(currentTeam == COLOR::WHITE ? pos.row + 1 : pos.row - 1), pos.col};
+                else
+                    enPassant = {-1, -1};
+                halfmove = 0;
+            }
+            else {
+                enPassant = {-1, -1};
+                ++halfmove;
+            }
 			changeTurn();
 		}
 
@@ -359,7 +546,14 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 		emphasizeClear(beforeClickPos);
 	
 		if (std::find(canEat.begin(), canEat.end(), pos) != canEat.end()) {
+            // 若城堡被吃掉，更新castlingFlag
+            if (chessPieces[pos.row][pos.col]->getType() == TYPE::ROOK)
+                GameManager::updateForCastling(chessPieces, castlingFlag, pos, pos);
 			eat(beforeClickPos, pos);
+            GameManager::updateForCastling(chessPieces, castlingFlag, beforeClickPos, pos);
+            GameManager::checkForPromotion(chessPieces[pos.row][pos.col]);
+            enPassant = {-1, -1};
+            halfmove = 0;
 			changeTurn();
 		}
 		firstClick = true;
@@ -414,18 +608,44 @@ void ChessBoard::emphasizeClear(Position pos) {
 		chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
 	}
 	for (auto i : canEat) {
-		chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
-	}
+        chessPieces[i.row][i.col]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
+    }
 }
 
-void ChessBoard::changeTurn() {
-	if (currentTeam == COLOR::BLACK) {
-		currentTeam = COLOR::WHITE;
-        fullmove++;
-	}
-	else {
-		currentTeam = COLOR::BLACK;
-	}
+void ChessBoard::emphasizeClearAll()
+{
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            chessPieces[i][j]->setStyleSheet("background-color: rgba(0, 0, 0, 0);");
+        }
+    }
+}
+
+void ChessBoard::changeTurn(bool autoChangeTeam) {
+    if (autoChangeTeam) {
+        if (currentTeam == COLOR::BLACK) {
+            currentTeam = COLOR::WHITE;
+            fullmove++;
+        }
+        else {
+            currentTeam = COLOR::BLACK;
+        }
+
+        // 紀錄盤面
+        moves.resize(currentMove + 2);
+        ++currentMove;
+        moves[currentMove] = this->toFEN();
+    }
+
+    // fifty move rule
+    if (halfmove >= 50) {
+        gameState = GameManager::State::DRAW;
+        emit gameOver(gameState);
+    }
+    else {
+        GameManager::drawTerritoryAndUpdateState(this);
+        emit gameOver(gameState);
+    }
 
 	emit changedTurnSignal(currentTeam);
 }
@@ -459,6 +679,41 @@ void ChessBoard::resizeEvent(QResizeEvent *event)
             }
         }
     }
+}
+
+void ChessBoard::load(QString FEN) {
+    GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emphasizeClearAll();
+    firstClick = true;
+    currentMove = 0;
+    moves.resize(1);
+    moves[currentMove] = FEN;
+    changeTurn(false);
+}
+
+void ChessBoard::undo()
+{
+    if (currentMove == 0)
+        return;
+
+    --currentMove;
+    GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emphasizeClearAll();
+    firstClick = true;
+    changeTurn(false);
+    emit changedTurnSignal(currentTeam);
+}
+
+void ChessBoard::redo() {
+    if (currentMove == moves.size() - 1)
+        return;
+
+    ++currentMove;
+    GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+    emphasizeClearAll();
+    firstClick = true;
+    changeTurn(false);
+    emit changedTurnSignal(currentTeam);
 }
 
 

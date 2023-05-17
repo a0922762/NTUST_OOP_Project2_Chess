@@ -7,20 +7,37 @@
 #include "ChessPieces.h"
 #include "common.h"
 
+/**
+ * @brief Player
+ * @details 負責處理棋子的點擊事件+移動棋子
+ */
 class ChessBoard : public QWidget
 {
 	Q_OBJECT
-
+    friend class GameManager;
 
 private:
-	ChessPieces* chessPieces[8][8];
+    // 點擊資訊
 	bool firstClick;
 	Position beforeClickPos;
+
+    // 盤面資訊
+    ChessPieces* chessPieces[8][8];
 	COLOR currentTeam;
     int castlingFlag = 0b1111;
     Position enPassant = { -1, -1 };
     int halfmove = 0;
     int fullmove = 0;
+
+    // 遊戲狀態
+    GameManager::State gameState;
+    int numOfChecking;
+    struct {
+        bool isDonimated;
+        bool isChecking;
+    } enemyTerritory[8][8]; //!< 敵方的勢力範圍
+    std::vector<QString> moves; //!< 以FEN儲存每回合盤面
+    int currentMove; //!< 目前盤面在moves中的index
 
 private:
 	// get information
@@ -35,8 +52,15 @@ private:
 	bool isBlack(Position pos) const { return isBlack(pos.row, pos.col); }
 	bool isEnemy(Position own, Position enemy) const { return isWhite(own) != isWhite(enemy); }
     bool isTurn(Position pos) const { return isWhite(pos) == (currentTeam == COLOR::WHITE); }
+    Position getOurKing() const;
+
+    bool isDonimated(Position pos) const { return enemyTerritory[pos.row][pos.col].isDonimated; }
+    bool isRealAttacker(Position pos) const { return !isEmpty(pos) && enemyTerritory[pos.row][pos.col].isChecking;}
+    bool isGhostAttacker(Position pos) const { return isEmpty(pos) && enemyTerritory[pos.row][pos.col].isChecking;}
 
 	// get can move position
+    // gameState != PLAYING時，回傳空vector
+    // 回傳可走到的空格
 	std::vector<Position> getCanMove(Position pos) const;
 	std::vector<Position> getPawnCanMove(Position pos) const;
 	std::vector<Position> getKnightCanMove(Position pos) const;
@@ -46,6 +70,8 @@ private:
 	std::vector<Position> getKingCanMove(Position pos) const;
 
 	// get can eat position
+    // gameState != PLAYING時，回傳空vector
+    // 回傳可吃的enemy
 	std::vector<Position> getCanEat(Position pos) const;
 	std::vector<Position> getPawnCanEat(Position pos) const;
 	std::vector<Position> getKnightCanEat(Position pos) const;
@@ -56,32 +82,38 @@ private:
 
 	void emphasizeCan(Position pos);
 	void emphasizeClear(Position pos);
+    void emphasizeClearAll();
 
 	bool pawnIsFirstMove(Position pos) const { return (pos.row == 6 && isWhite(pos)) || (pos.row == 1 && isBlack(pos)); }
 
-	void changeTurn();
+    // autoChangeTeam == true -> 改currentTeam+fullmove+更新moves
+    // false時，只計算遊戲狀態
+    void changeTurn(bool autoChangeTeam = true);
+
+    void move(Position from, Position to);
+    void eat(Position eater, Position eaten);
 
 public:
 	ChessBoard(QWidget* parent);
 
-    void move(Position from, Position to);
-	void eat(Position eater, Position eaten);
-
-	// bool movePieces(Position from, Position to);
-
     void resizeEvent(QResizeEvent* event) override;
 
+    bool isChecked() const { return numOfChecking; }
     COLOR getTurn() const { return currentTeam; }
     int getHalfMove() const { return halfmove; }
     int getFullMove() const { return fullmove; }
 
-    void load(QString FEN) {GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);}
+    void load(QString FEN);
+    QString toFEN() { return GameManager::toFEN((const ChessPieces*(*)[8])chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);}
+    const QString& getCurrentFEN() { return moves[currentMove]; }
 
 signals:
 	void changedTurnSignal(COLOR currentTeam);
-	void promotion(int &chooseId);
+    void gameOver(GameManager::State);
+
 public slots:
 	void chessPiecesClicked(Position pos);
-	// bool eatPieces(Position from, Position to);
-
+    void undo();
+    void redo();
+    void setState(GameManager::State state) { gameState = state; }
 };

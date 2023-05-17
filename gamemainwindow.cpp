@@ -1,5 +1,8 @@
 
 #include "gamemainwindow.h"
+#include <QLineEdit>
+#include <QPushButton>
+#include <QClipboard>
 #include "ui_gamemainwindow.h"
 #include "pregame.h"
 #include "timedisplay.h"
@@ -14,6 +17,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     , pregameDialog(new PreGame(this))
 {
     ui->setupUi(this);
+    ui->checkedLabel->hide();
 
     // palette
     QPalette myPalette;
@@ -52,9 +56,13 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     });
     connect(ui->actionPause, &QAction::triggered, this, &GameMainWindow::pause);
     connect(ui->actionExit, &QAction::triggered, qApp, &QApplication::quit);
+    connect(ui->actionto_FEN, &QAction::triggered, this, &GameMainWindow::showFEN);
+    connect(ui->actionUndo, &QAction::triggered, ui->chessBoard, &ChessBoard::undo);
+    connect(ui->actionRedo, &QAction::triggered, ui->chessBoard, &ChessBoard::redo);
     connect(ui->white_TimeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::BLACK_WIN); });
     connect(ui->black_timeLabel, &TimeDisplay::timeout, this, [this]() { this->gameOver(GameManager::State::WHITE_WIN); });
     connect(ui->chessBoard, &ChessBoard::changedTurnSignal, this, &GameMainWindow::updateInfo);
+    connect(ui->chessBoard, &ChessBoard::gameOver, this, &GameMainWindow::gameOver);
 }
 
 // Intent: destruct the object
@@ -111,21 +119,23 @@ void GameMainWindow::startGame(SettingProtocol setting)
     if (senderDialog != nullptr)
         senderDialog->accept();
 
-    this->updateInfo(ui->chessBoard->getTurn());
-
     // enable all action
     QList<QAction*> actionList = this->findChildren<QAction*>(QRegularExpression("^action"));
     for (auto it = actionList.begin(); it != actionList.end(); ++it) {
-//        qDebug() << *it << "Enabled";
         (*it)->setEnabled(true);
     }
 }
 
+// Intend: 輸出遊戲結束的訊息
 void GameMainWindow::gameOver(GameManager::State state)
 {
-    if (state == GameManager::State::PLAYING)
+    if (state == GameManager::State::PLAYING) {
+        ui->actionPause->setDisabled(false);
+        ui->actionSurrender->setDisabled(false);
         return;
+    }
 
+    ui->chessBoard->setState(state);
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
     QString message = (state == GameManager::State::BLACK_WIN ? "<b>Black</b> Wins!!!!" :
@@ -136,6 +146,7 @@ void GameMainWindow::gameOver(GameManager::State state)
     ui->actionSurrender->setDisabled(true);
 }
 
+// Intend: 將Info顯示為color那方
 void GameMainWindow::updateInfo(COLOR color)
 {
     if (color == COLOR::WHITE) {
@@ -152,8 +163,10 @@ void GameMainWindow::updateInfo(COLOR color)
     }
     ui->roundLCD->display(ui->chessBoard->getFullMove());
     ui->halfmoveLCD->display(ui->chessBoard->getHalfMove());
+    ui->checkedLabel->setVisible(ui->chessBoard->isChecked());
 }
 
+// Intend: 暫停遊戲
 void GameMainWindow::pause()
 {
     ui->black_timeLabel->stop();
@@ -165,10 +178,38 @@ void GameMainWindow::pause()
         ui->black_timeLabel->start();
 }
 
+// Intend: 重新顯示pregame並重新開始
 void GameMainWindow::newGame()
 {
     ui->white_TimeLabel->stop();
     ui->black_timeLabel->stop();
     pregameDialog->open();
+}
+
+// Intend: 顯示一個視窗，上面有盤面的FEN
+void GameMainWindow::showFEN()
+{
+    QWidget* w = new QWidget;
+    w->setMinimumWidth(700);
+    w->setWindowTitle("FEN");
+    w->setPalette(this->palette());
+    w->setFont(QFont("cascadia mono"));
+    QHBoxLayout* v = new QHBoxLayout(w);
+
+    v->addWidget(new QLabel("FEN: "));
+    QLineEdit* line = new QLineEdit;
+    line->setReadOnly(true);
+    line->setText(ui->chessBoard->getCurrentFEN());
+    v->addWidget(line);
+    QPushButton* clip = new QPushButton;
+    clip->setIcon(QIcon(":/chessPieces/clipboard.png"));
+    connect(clip, &QPushButton::clicked, line, [line]() {
+        QApplication::clipboard()->setText(line->text());
+        line->setSelection(0, line->text().size());
+    });
+    v->addWidget(clip);
+
+    w->show();
+    w->setAttribute(Qt::WA_DeleteOnClose);
 }
 

@@ -351,6 +351,19 @@ border: 1px solid grey;</string>
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="checkedLabel">
+        <property name="styleSheet">
+         <string notr="true">background-color: red; color: black; font:  italic 30px alef;</string>
+        </property>
+        <property name="text">
+         <string>Checked !!!</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="turnLabel">
         <property name="minimumSize">
          <size>
@@ -511,7 +524,19 @@ border: 1px solid grey;</string>
     <addaction name="separator"/>
     <addaction name="actionExit"/>
    </widget>
+   <widget class="QMenu" name="menuAdvance">
+    <property name="title">
+     <string>Advance</string>
+    </property>
+    <addaction name="actionto_FEN"/>
+    <addaction name="separator"/>
+    <addaction name="separator"/>
+    <addaction name="actionUndo"/>
+    <addaction name="separator"/>
+    <addaction name="actionRedo"/>
+   </widget>
    <addaction name="menuOption"/>
+   <addaction name="menuAdvance"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionExit">
@@ -535,6 +560,21 @@ border: 1px solid grey;</string>
   <action name="actionPause">
    <property name="text">
     <string>Pause</string>
+   </property>
+  </action>
+  <action name="actionto_FEN">
+   <property name="text">
+    <string>To FEN</string>
+   </property>
+  </action>
+  <action name="actionUndo">
+   <property name="text">
+    <string>Undo</string>
+   </property>
+  </action>
+  <action name="actionRedo">
+   <property name="text">
+    <string>Redo</string>
    </property>
   </action>
  </widget>

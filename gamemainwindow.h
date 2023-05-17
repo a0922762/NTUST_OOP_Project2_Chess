@@ -3,6 +3,7 @@
 #define GAMEMAINWINDOW_H
 
 #include <QMainWindow>
+#include <QApplication>
 #include "SettingProtocol.h"
 #include "GameManager.h"
 
@@ -26,15 +27,24 @@ public:
     explicit GameMainWindow(QWidget *parent = nullptr);
     ~GameMainWindow();
 
+    // 關閉主視窗，一併關閉所有視窗
+    void closeEvent(QCloseEvent*) override { qApp->quit(); }
+
 public slots:
+    // 一併顯示pregame
     void show();
+    // 開始遊戲，setting為玩家輸入的設定
     void startGame(SettingProtocol setting);
     // 遊戲結束，state->結果
     void gameOver(GameManager::State state);
     // 將回合轉成某一隊，並設定訊息
     void updateInfo(COLOR color);
+    // 暫停
     void pause();
+    // 停止遊戲+重新輸入遊戲設定
     void newGame();
+    // 在新視窗顯示盤面FEN
+    void showFEN();
 
 signals:
 
