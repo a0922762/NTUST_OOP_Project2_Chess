@@ -1,4 +1,3 @@
-#pragma once
 /*****************************************************************//**
  * File: ChessPieces.h
  * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
@@ -7,6 +6,7 @@
  * Update Date: 2023-05-06
  * Description: Header file for ChessPieces.cpp
  *********************************************************************/
+#pragma once
 #include <QLabel>
 #include <QPixmap>
 

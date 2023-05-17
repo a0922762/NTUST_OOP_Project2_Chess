@@ -1,4 +1,11 @@
-
+/*****************************************************************//**
+ * File: SettingProtocol.h
+ * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Create Date: 2023-05-17
+ * Editor: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Update Date: 2023-05-17
+ * Description: defind prgame and gamemainwindow transfer data
+ *********************************************************************/
 #ifndef SETTINGPROTOCOL_H
 #define SETTINGPROTOCOL_H
 #include <QString>

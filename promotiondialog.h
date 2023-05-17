@@ -1,4 +1,11 @@
-
+/*****************************************************************//**
+ * File: promotiondialog.h
+ * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Create Date: 2023-05-17
+ * Editor: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Update Date: 2023-05-17
+ * Description: this is a promotion dialog 
+ *********************************************************************/
 #ifndef PROMOTIONDIALOG_H
 #define PROMOTIONDIALOG_H
 

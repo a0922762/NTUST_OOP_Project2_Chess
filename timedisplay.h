@@ -1,4 +1,11 @@
-
+/*****************************************************************//**
+ * File: timedisplay.h
+ * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Create Date: 2023-05-17
+ * Editor: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Update Date: 2023-05-17
+ * Description: this is a time display
+ *********************************************************************/
 #ifndef TIMEDISPLAY_H
 #define TIMEDISPLAY_H
 

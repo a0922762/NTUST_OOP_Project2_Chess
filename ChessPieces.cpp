@@ -1,3 +1,11 @@
+/*****************************************************************//**
+ * File: ChessPieces.cpp
+ * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Create Date: 2023-05-17
+ * Editor: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Update Date: 2023-05-17
+ * Description: this is a chess pieces implention
+ *********************************************************************/
 #include "ChessPieces.h"
 #include <QMouseEvent>
 #include <QPixmap>
@@ -6,18 +14,25 @@
 #include <QGuiApplication>
 #include <QScreen>
 
+// Intent: constructor
+// Pre: none
+// Post: make a chess pieces with type and color and position
 ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent)
     : QLabel(parent), pos(pos), type(type), color(color)
 {
     setType(type, color);
 }
 
+// Intent: constructor
+// Pre: none
+// Post: make a chess pieces by default row and col
 ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     pos = Position{ row, col };
-    int id = row * 8 + col;
+    int id = row * 8 + col; // 0 ~ 63
 
     this->setFixedSize(INIT_PIECE_SIZE, INIT_PIECE_SIZE);
 
+    // set chess pieces by id
     switch (id) {
     case 0: case 7:
         type  = TYPE::ROOK;
@@ -77,6 +92,9 @@ ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
     setType(type, color);
 }
 
+// Intent: swap chess pieces
+// Pre: none
+// Post: swap chess pieces
 void ChessPieces::swapChessInfo(ChessPieces &rhs) {
     // 三角交換
     QPixmap tmp = rhs.pixmap(Qt::ReturnByValue);
@@ -88,6 +106,9 @@ void ChessPieces::swapChessInfo(ChessPieces &rhs) {
     std::swap(imageAddress, rhs.imageAddress);
 }
 
+// Intent: set chess pieces type
+// Pre: none
+// Post: set chess pieces type
 void ChessPieces::setType(TYPE _type, COLOR _color)
 {
     type = _type;
@@ -111,11 +132,16 @@ void ChessPieces::setType(TYPE _type, COLOR _color)
     }
 }
 
+// Intent: swap chess pieces
+// Pre: none
+// Post: swap chess pieces
 void swap(ChessPieces& lhs, ChessPieces& rhs) {
 	lhs.swapChessInfo(rhs);
 }
 
-// a1 -> Position{7, 0}
+// Intent: get chess pieces position by algebraic notation
+// Pre: none
+// Post: get chess pieces position by algebraic notation
 Position posFromAlgebraic(std::string notation)
 {
     Position pos;
@@ -124,8 +150,10 @@ Position posFromAlgebraic(std::string notation)
     return pos;
 }
 
+// Intent: when pieces is clicked, emit clicked signal
 void ChessPieces::mousePressEvent(QMouseEvent* event)
 {
+    // if left click
     if (event->button() == Qt::LeftButton) {
         qDebug() << pos.row << ',' << pos.col << "click" << (int)type << (int)color << imageAddress;
         emit clicked(pos);

@@ -1,4 +1,11 @@
-
+/*****************************************************************//**
+ * File: gamemainwindow.cpp
+ * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Create Date: 2023-05-17
+ * Editor: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Update Date: 2023-05-17
+ * Description: this is a game main window implention
+ *********************************************************************/
 #include "gamemainwindow.h"
 #include <QLineEdit>
 #include <QPushButton>
@@ -10,7 +17,9 @@
 #include <QMessageBox>
 #include <QRegularExpression>
 
-// Intend: set up ui
+// Intend: constructor
+// Pre: none
+// Post: ui is set up
 GameMainWindow::GameMainWindow(QWidget *parent)
     : QMainWindow{parent}
     , ui(new Ui::GameMainWindow)
@@ -45,7 +54,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
         }
     }
 
-
+    // connenct signal and slot
     connect(pregameDialog, &PreGame::startButtonClicked, this, &GameMainWindow::startGame);
     connect(ui->actionNew_Game, &QAction::triggered, this, &GameMainWindow::newGame);
     connect(ui->actionSurrender, &QAction::triggered, this, [this]() {
@@ -66,6 +75,8 @@ GameMainWindow::GameMainWindow(QWidget *parent)
 }
 
 // Intent: destruct the object
+// Pre: none
+// Post: ui is deleted
 GameMainWindow::~GameMainWindow()
 {
     delete ui;
@@ -73,6 +84,8 @@ GameMainWindow::~GameMainWindow()
 }
 
 // Intent: show window and dialog
+// Pre: none
+// Post: window and dialog are shown
 void GameMainWindow::show()
 {
     QMainWindow::show();
@@ -127,8 +140,11 @@ void GameMainWindow::startGame(SettingProtocol setting)
 }
 
 // Intend: 輸出遊戲結束的訊息
+// Pre: none
+// Post: 輸出遊戲結束的訊息
 void GameMainWindow::gameOver(GameManager::State state)
 {
+
     if (state == GameManager::State::PLAYING) {
         ui->actionPause->setDisabled(false);
         ui->actionSurrender->setDisabled(false);
@@ -147,6 +163,8 @@ void GameMainWindow::gameOver(GameManager::State state)
 }
 
 // Intend: 將Info顯示為color那方
+// Pre: none
+// Post: Info顯示為color那方
 void GameMainWindow::updateInfo(COLOR color)
 {
     if (color == COLOR::WHITE) {
@@ -167,6 +185,8 @@ void GameMainWindow::updateInfo(COLOR color)
 }
 
 // Intend: 暫停遊戲
+// Pre: none
+// Post: 暫停遊戲
 void GameMainWindow::pause()
 {
     ui->black_timeLabel->stop();
@@ -179,6 +199,8 @@ void GameMainWindow::pause()
 }
 
 // Intend: 重新顯示pregame並重新開始
+// Pre: none
+// Post: 重新顯示pregame並重新開始
 void GameMainWindow::newGame()
 {
     ui->white_TimeLabel->stop();
@@ -187,6 +209,8 @@ void GameMainWindow::newGame()
 }
 
 // Intend: 顯示一個視窗，上面有盤面的FEN
+// Pre: none
+// Post: 顯示一個視窗，上面有盤面的FEN
 void GameMainWindow::showFEN()
 {
     QWidget* w = new QWidget;

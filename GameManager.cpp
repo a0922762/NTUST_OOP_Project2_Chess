@@ -7,7 +7,9 @@
 #include <iostream>
 #include <QDebug>
 
-// 1. 若走出入堡，移動城堡。 2. 依移動更新castlingFlag
+// Intent: 若走出入堡，移動城堡。 2. 依移動更新castlingFlag
+// Pre: none
+// Post: 若走出入堡，移動城堡。 2. 依移動更新castlingFlag
 void GameManager::updateForCastling(ChessPieces *board[8][8], int &castlingFlag, Position pre, Position post)
 {
     // 移國王，檢查入堡
@@ -55,6 +57,9 @@ void GameManager::updateForCastling(ChessPieces *board[8][8], int &castlingFlag,
     }
 }
 
+// Intent: check if the chess can promotion
+// Pre: none
+// Post: if the chess can promotion, show the promotion dialog
 void GameManager::checkForPromotion(ChessPieces *chess)
 {
     if (chess->getType() == TYPE::PAWN) {
@@ -67,6 +72,9 @@ void GameManager::checkForPromotion(ChessPieces *chess)
     }
 }
 
+// Intent: change the chess board to FEN
+// Pre: none
+// Post: change the chess board to FEN
 QString GameManager::toFEN(const ChessPieces* pieces[8][8], COLOR moveTeam, int castlingFlag, Position enPassant, int halfmove, int fullmove)
 {
     std::ostringstream oss;
@@ -123,6 +131,9 @@ QString GameManager::toFEN(const ChessPieces* pieces[8][8], COLOR moveTeam, int 
     return QString(oss.str().c_str());
 }
 
+// Intent: load the FEN to the chess board
+// Pre: none
+// Post: load the FEN to the chess board
 void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, int &castlingFlag, Position &enPassant, int &halfmove, int &fullmove)
 {
     std::istringstream iss(FEN.toStdString());
@@ -239,6 +250,9 @@ void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, 
     qDebug() << castlingFlag << enPassant.row << enPassant.col << halfmove << fullmove;
 }
 
+// Intent: draw the territory of a piece
+// Pre: none
+// Post: draw the territory of a piece
 void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
 {
     board->gameState = GameManager::State::PLAYING;
@@ -300,6 +314,9 @@ void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
     }
 }
 
+// Intent: draw the territory of pieces
+// Pre: none
+// Post: draw the territory of pieces
 void GameManager::drawTerritory(ChessBoard* board, Position pos) {
     switch (board->chessPieces[pos.row][pos.col]->getType()) {
     case TYPE::PAWN:
@@ -325,6 +342,9 @@ void GameManager::drawTerritory(ChessBoard* board, Position pos) {
     }
 }
 
+// Intent: draw helper without pinned
+// Pre: none
+// Post: draw helper without pinned
 void GameManager::drawHelperWithoutPinned(ChessBoard* board, Position pos, Position from) {
     if (board->posIsOk(pos)) {
         // 空格或（被保護的）敵方棋子（相對於currentTeam）
@@ -341,6 +361,9 @@ void GameManager::drawHelperWithoutPinned(ChessBoard* board, Position pos, Posit
     }
 }
 
+// Intent: draw the territory of a pawn
+// Pre: none
+// Post: draw the territory of a pawn
 void GameManager::drawTerritoryPawn(ChessBoard* board, Position pos) {
     qDebug() << "Enemy Pawn at " << pos.row << pos.col;
     int deltaR = board->isWhite(pos) ? -1 : 1;
@@ -351,6 +374,9 @@ void GameManager::drawTerritoryPawn(ChessBoard* board, Position pos) {
     }
 }
 
+// Intent: draw the territory of a knight
+// Pre: none
+// Post: draw the territory of a knight
 void GameManager::drawTerritoryKnight(ChessBoard* board, Position pos) {
     qDebug() << "Enemy Knight at " << pos.row << pos.col;
     Position delta[8] = {{-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}};
@@ -361,6 +387,9 @@ void GameManager::drawTerritoryKnight(ChessBoard* board, Position pos) {
     }
 }
 
+// Intent: draw the territory of a king
+// Pre: none
+// Post: draw the territory of a king
 void GameManager::drawTerritoryKing(ChessBoard* board, Position pos) {
     qDebug() << "Enemy King at " << pos.row << pos.col;
 
@@ -374,6 +403,9 @@ void GameManager::drawTerritoryKing(ChessBoard* board, Position pos) {
     }
 }
 
+// Intent: draw the helper with pinned
+// Pre: none
+// Post: draw the helper with pinned
 void GameManager::drawHelperWithPinned(ChessBoard* board, Position from, Position delta) {
     Position newPos = from + delta;
 
@@ -427,12 +459,18 @@ void GameManager::drawHelperWithPinned(ChessBoard* board, Position from, Positio
     }
 }
 
+// Intent: draw the territory of queen
+// Pre: none
+// Post: draw the territory of queen
 void GameManager::drawTerritoryQueen(ChessBoard* board, Position pos) {
     qDebug() << "Enemy Queen at " << pos.row << pos.col;
     drawTerritoryBishop(board, pos);
     drawTerritoryRook(board, pos);
 }
 
+// Intent: draw the territory of a rook
+// Pre: none
+// Post: draw the territory of a rook
 void GameManager::drawTerritoryRook(ChessBoard* board, Position pos) {
     qDebug() << "Enemy Rook at " << pos.row << pos.col;
     drawHelperWithPinned(board, pos, {1, 0});
@@ -441,6 +479,9 @@ void GameManager::drawTerritoryRook(ChessBoard* board, Position pos) {
     drawHelperWithPinned(board, pos, {0, -1});
 }
 
+// Intent: draw the territory of a bishop
+// Pre: none
+// Post: draw the territory of a bishop
 void GameManager::drawTerritoryBishop(ChessBoard* board, Position pos) {
     qDebug() << "Enemy Bishop at " << pos.row << pos.col;
     drawHelperWithPinned(board, pos, {1, 1});

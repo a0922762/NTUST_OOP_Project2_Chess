@@ -1,18 +1,30 @@
+/*****************************************************************//**
+ * File: ChessBoard.cpp
+ * Author: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Create Date: 2023-05-17
+ * Editor: TENG-FENG YOU (vic.feng1234@gmail.com)
+ * Update Date: 2023-05-17
+ * Description: ChessBoard class implementation 
+ *********************************************************************/
 #include "ChessBoard.h"
 #include <QLayout>
 #include <QDebug>
 #include <common.h>
 #include <algorithm>
 
-#define BACKGROUND ":/pieces/chessPieces/chess/150.png"
+
+#define BACKGROUND ":/pieces/chessPieces/chess/150.png" // background image
 
 using namespace std;
 
+// Intent: defalut constructor
+// Pre: none
+// Post: make a chess board
 ChessBoard::ChessBoard(QWidget* parent)
 	: QWidget(parent), firstClick(true), currentTeam(COLOR::WHITE)
 {
-	//GUI
 
+    // set size
     this->setMinimumSize(INIT_PIECE_SIZE * 8, INIT_PIECE_SIZE * 8);
     this->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Expanding);
 
@@ -23,40 +35,50 @@ ChessBoard::ChessBoard(QWidget* parent)
     this->setPalette(palette);
     this->setAutoFillBackground(true);
 
+    // set chess pieces layout
 	QGridLayout* layout = new QGridLayout;
 	for (int row = 0; row < 8; ++row) {
 		for (int col = 0; col < 8; ++col) {
-            chessPieces[row][col] = new ChessPieces(row, col, this);
+            chessPieces[row][col] = new ChessPieces(row, col, this); // create chess pieces object
 			
 			layout->addWidget(chessPieces[row][col], row, col);
 
             connect(chessPieces[row][col], &ChessPieces::clicked, this, &ChessBoard::chessPiecesClicked);
 		}
 	}
-
+    
     layout->setAlignment(Qt::AlignCenter);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
 	this->setLayout(layout);
 }
 
+// Intent : get the king position
+// Pre : none
+// Post : return the king position
 Position ChessBoard::getOurKing() const
 {
     for (int r = 0; r < 8; ++r) {
         for (int c = 0; c < 8; ++c) {
-            if (isTurn({r, c}) && chessPieces[r][c]->getType() == TYPE::KING)
-                return {r, c};
+            // find out king
+            if (isTurn({ r, c }) && chessPieces[r][c]->getType() == TYPE::KING) {
+                return { r, c };
+            }
         }
     }
     return {-1, -1};
 }
 
+// Intent: get the pieces can move position
+// Pre: none
+// Post: return the pieces can move position
 std::vector<Position> ChessBoard::getCanMove(Position pos) const {
 	int row = pos.row;
 	int col = pos.col;
     std::vector<Position> canGo;
     TYPE chessTYPE = chessPieces[row][col]->getType();
 
+    // if game is not playing, return empty vector
     if (gameState != GameManager::State::PLAYING) {
         return canGo;
 	}
@@ -125,14 +147,20 @@ std::vector<Position> ChessBoard::getCanMove(Position pos) const {
     return canGo;
 }
 
+// Intent: get the pawn pieces can move position
+// Pre: none
+// Post: return the pawn pieces can move position
 std::vector<Position> ChessBoard::getPawnCanMove(Position pos) const {
 	std::vector<Position> canMove;
 
+    // change direction by color
 	int deltaRow = isWhite(pos) ? -1 : 1;
 
+    // check if can move forward one step
 	if (posIsOk(pos.row + deltaRow, pos.col) && isEmpty(pos.row + deltaRow, pos.col)) {
 		canMove.push_back(Position{pos.row + deltaRow, pos.col});
 	}
+    // check if can move forward two step
     if (pawnIsFirstMove(pos) && posIsOk(pos.row + deltaRow * 2, pos.col) && isEmpty(pos.row + deltaRow * 2, pos.col)) {
 		canMove.push_back(Position{ pos.row + deltaRow * 2, pos.col });
 	}
@@ -140,9 +168,12 @@ std::vector<Position> ChessBoard::getPawnCanMove(Position pos) const {
 	return canMove;
 }
 
+// Intent: get the rook pieces can move position
+// Pre: none
+// Post: return the rook pieces can move position
 std::vector<Position> ChessBoard::getRookCanMove(Position pos) const {
 	vector<Position> canMove;
-	bool notLookChess[4] = { true, true, true, true };
+	bool notLookChess[4] = { true, true, true, true }; // left, right, up, down
 
 	for (int i = 1; i < 8; i++) {
 		Position newPos[4] = {
@@ -152,6 +183,7 @@ std::vector<Position> ChessBoard::getRookCanMove(Position pos) const {
 			Position{ pos.row + i, pos.col }
 		};
 		
+        // check if can move
 		for (int i = 0; i < 4; i++) {
 			if (notLookChess[i] && posIsOk(newPos[i])) {
 				if (isEmpty(newPos[i])) {
@@ -168,12 +200,16 @@ std::vector<Position> ChessBoard::getRookCanMove(Position pos) const {
 	return canMove;
 }
 
+// Intent: get the knight pieces can move position
+// Pre: none
+// Post: return the knight pieces can move position
 std::vector<Position> ChessBoard::getKnightCanMove(Position pos) const {
 	std::vector<Position> canMove;
 
-	int deltaRow[8] = { -2, -2, -1, -1, 1, 1, 2, 2 };
-	int deltaCol[8] = { -1, 1, -2, 2, -2, 2, -1, 1 };
+	int deltaRow[8] = { -2, -2, -1, -1, 1, 1, 2, 2 }; // up, down
+	int deltaCol[8] = { -1, 1, -2, 2, -2, 2, -1, 1 }; // left, right
 
+    // check if can move
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
 
@@ -185,10 +221,14 @@ std::vector<Position> ChessBoard::getKnightCanMove(Position pos) const {
 	return canMove;
 }
 
+// Intent: get the bishop pieces can move position
+// Pre: none
+// Post: return the bishop pieces can move position
 std::vector<Position> ChessBoard::getBishopCanMove(Position pos) const {
 	std::vector<Position> canMove;
-	bool notLookChess[4] = { true, true, true, true };
+	bool notLookChess[4] = { true, true, true, true }; // left up, right up, left down, right down
 
+    // check if can move
 	for (int i = 1; i < 8; i++) {
 		Position newPos[4] = {
 			Position{ pos.row - i, pos.col - i },
@@ -196,6 +236,7 @@ std::vector<Position> ChessBoard::getBishopCanMove(Position pos) const {
 			Position{ pos.row + i, pos.col - i },
 			Position{ pos.row + i, pos.col + i }
 		};
+
 		for (int i = 0; i < 4; i++) {
 			if (notLookChess[i] && posIsOk(newPos[i])) {
 				if (isEmpty(newPos[i])) {
@@ -210,21 +251,30 @@ std::vector<Position> ChessBoard::getBishopCanMove(Position pos) const {
 	return canMove;
 }
 
+// Intent: get the queen pieces can move position
+// Pre: none
+// Post: return the queen pieces can move position
 std::vector<Position> ChessBoard::getQueenCanMove(Position pos) const {
 	vector<Position> canMove;
 	vector<Position> canMoveRook = getRookCanMove(pos);
 	vector<Position> canMoveBishop = getBishopCanMove(pos);
 
+    // queen can move position is the rook and bishop can move position
+    // combine the rook and bishop can move position
 	canMove.insert(canMove.end(), canMoveRook.begin(), canMoveRook.end());
 	canMove.insert(canMove.end(), canMoveBishop.begin(), canMoveBishop.end());
 
 	return canMove;
 }
 
+// Intent: get the king pieces can move position
+// Pre: none
+// Post: return the king pieces can move position
 std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 	std::vector<Position> canMove;
-	int deltaRow[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
-	int deltaCol[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+	int deltaRow[8] = { -1, -1, -1, 0, 0, 1, 1, 1 }; // up, down
+	int deltaCol[8] = { -1, 0, 1, -1, 1, -1, 0, 1 }; // left, right
+	// check if can move
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
         if (posIsOk(newPos) && isEmpty(newPos) && !isDonimated(newPos)) {
@@ -282,10 +332,14 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 	return canMove;
 }
 
+// Intent: get the pieces can eat position
+// Pre: none
+// Post: return the pieces can eat position
 std::vector<Position> ChessBoard::getCanEat(Position pos) const {
     std::vector<Position> canEat;
     TYPE chessTYPE = chessPieces[pos.row][pos.col]->getType();
 
+    // if not playing, return empty
     if (gameState != GameManager::State::PLAYING) {
         return canEat;
     }
@@ -354,6 +408,9 @@ std::vector<Position> ChessBoard::getCanEat(Position pos) const {
     return canEat;
 }
 
+// Intent: get the pawn pieces can eat position
+// Pre: none
+// Post: return the pawn pieces can eat position
 std::vector<Position> ChessBoard::getPawnCanEat(Position pos) const {
 	vector<Position> canEat;
 	int deltaRow = isWhite(pos) ? -1 : 1;
@@ -371,9 +428,13 @@ std::vector<Position> ChessBoard::getPawnCanEat(Position pos) const {
 	return canEat;
 }
 
+// Intent: get the rook pieces can eat position
+// Pre: none
+// Post: return the rook pieces can eat position
 std::vector<Position> ChessBoard::getRookCanEat(Position pos) const {
 	vector<Position> canEat;
 
+    // find the can eat position in the direction of down
 	for (int i = pos.row - 1; i >= 0; i--) {
 		Position newPos = Position{ i, pos.col };
 		if (posIsOk(newPos) && !isEmpty(newPos)) {
@@ -383,6 +444,7 @@ std::vector<Position> ChessBoard::getRookCanEat(Position pos) const {
 			break;
 		}
 	}
+    // find the can eat position in the direction of up
 	for (int i = pos.row + 1; i < 8; i++) {
 		Position newPos = Position{ i, pos.col };
 		if (posIsOk(newPos) && !isEmpty(newPos)) {
@@ -392,6 +454,7 @@ std::vector<Position> ChessBoard::getRookCanEat(Position pos) const {
 			break;
 		}
 	}
+    // find the can eat position in the direction of left
 	for (int i = pos.col - 1; i >= 0; i--) {
 		Position newPos = Position{ pos.row, i };
 		if (posIsOk(newPos) && !isEmpty(newPos)) {
@@ -401,6 +464,7 @@ std::vector<Position> ChessBoard::getRookCanEat(Position pos) const {
 			break;
 		}
 	}
+    // find the can eat position in the direction of right
 	for (int i = pos.col + 1; i < 8; i++) {
 		Position newPos = Position{ pos.row, i };
 		if (posIsOk(newPos) && !isEmpty(newPos)) {
@@ -414,11 +478,16 @@ std::vector<Position> ChessBoard::getRookCanEat(Position pos) const {
 	return canEat;
 }
 
+// Intent: get the knight pieces can eat position
+// Pre: none
+// Post: return the knight pieces can eat position
 std::vector<Position> ChessBoard::getKnightCanEat(Position pos) const {
 	vector<Position> canEat;
+    // the delta of row and col
 	int deltaRow[8] = { -2, -2, -1, -1, 1, 1, 2, 2 };
 	int deltaCol[8] = { -1, 1, -2, 2, -2, 2, -1, 1 };
 
+    // find the can eat position
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
 		if (posIsOk(newPos) && !isEmpty(newPos) && isEnemy(pos, newPos)) {
@@ -428,10 +497,14 @@ std::vector<Position> ChessBoard::getKnightCanEat(Position pos) const {
 	return canEat;
 }
 
+// Intent: get the bishop pieces can eat position
+// Pre: none
+// Post: return the bishop pieces can eat position
 std::vector<Position> ChessBoard::getBishopCanEat(Position pos) const {
 	vector<Position> canEat;
-	bool notLookChess[4] = { true, true, true, true };
+	bool notLookChess[4] = { true, true, true, true }; // left up, right up, left down, right down
 
+	// find the can eat position
 	for (int i = 1; i < 8; i++) {
 		Position newPos[4] = {
 			Position{ pos.row - i, pos.col - i },
@@ -458,16 +531,24 @@ std::vector<Position> ChessBoard::getBishopCanEat(Position pos) const {
 	return canEat;
 }
 
+// Intent: get the queen pieces can eat position
+// Pre: none
+// Post: return the queen pieces can eat position
 std::vector<Position> ChessBoard::getQueenCanEat(Position pos) const {
 	vector<Position> canEat;
 	vector<Position> canEatRook = getRookCanEat(pos);
 	vector<Position> canEatBishop = getBishopCanEat(pos);
 
+    // queen can eat position is the union of rook and bishop
+    // combine the rook and bishop can eat position
 	canEat.insert(canEat.end(), canEatRook.begin(), canEatRook.end());
 	canEat.insert(canEat.end(), canEatBishop.begin(), canEatBishop.end());
 	return canEat;
 }
 
+// Intent: get the king pieces can eat position
+// Pre: none
+// Post: return the king pieces can eat position
 std::vector<Position> ChessBoard::getKingCanEat(Position pos) const {
 	vector<Position> canEat;
 	int deltaRow[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
@@ -481,6 +562,9 @@ std::vector<Position> ChessBoard::getKingCanEat(Position pos) const {
 	return canEat;
 }
 
+// Intent: do difference action when chess pieces clicked
+// Pre: none
+// Post: do difference action when chess pieces clicked
 void ChessBoard::chessPiecesClicked(Position pos) {
     // 檢查吃過路兵
     if (!firstClick && chessPieces[beforeClickPos.row][beforeClickPos.col]->getType() == TYPE::PAWN && pos == enPassant) {
@@ -572,6 +656,9 @@ void ChessBoard::chessPiecesClicked(Position pos) {
 
 }
 
+// Intent: from pos1 to pos2
+// Pre: none
+// Post: swap the chess pieces from pos1 to pos2
 void ChessBoard::move(Position from, Position to) {
     qDebug() << "Move Action from" << "(" << from.row << ", " << from.col << ") : " << "(" << to.row << ", " << to.col << ")" << "\n";
 
@@ -579,6 +666,9 @@ void ChessBoard::move(Position from, Position to) {
 	swap(*chessPieces[from.row][from.col], *chessPieces[to.row][to.col]);
 }
 
+// Intent: eater eat beEat
+// Pre: none
+// Post: set beEat empty and swap the chess pieces from eater to beEat
 void ChessBoard::eat(Position eater, Position beEat) {
 	qDebug() << "Eat Action from" << "(" << eater.row << ", " << eater.col << ") : " << "(" << beEat.row << ", " << beEat.col << ")" << "\n";
 
@@ -588,6 +678,9 @@ void ChessBoard::eat(Position eater, Position beEat) {
 	swap(*chessPieces[beEat.row][beEat.col], *chessPieces[eater.row][eater.col]);
 }
 
+// Intent: emphasize the can move and can eat position on GUI
+// Pre: none
+// Post: emphasize the can move and can eat position on GUI
 void ChessBoard::emphasizeCan(Position pos) {
 	vector<Position> canGo = getCanMove(pos);
 	vector<Position> canEat = getCanEat(pos);
@@ -600,6 +693,9 @@ void ChessBoard::emphasizeCan(Position pos) {
 	}
 }
 
+// Intent: clear the position make emphasize on GUI
+// Pre: position
+// Post: clear the position make emphasize on GUI
 void ChessBoard::emphasizeClear(Position pos) {
 	vector<Position> canGo = getCanMove(pos);
 	vector<Position> canEat = getCanEat(pos);
@@ -612,6 +708,9 @@ void ChessBoard::emphasizeClear(Position pos) {
     }
 }
 
+// Intent: clear all emphasize
+// Pre: none
+// Post: clear all emphasize
 void ChessBoard::emphasizeClearAll()
 {
     for (int i = 0; i < 8; ++i) {
@@ -621,6 +720,9 @@ void ChessBoard::emphasizeClearAll()
     }
 }
 
+// Intent: change the turn
+// Pre: none
+// Post: change the turn
 void ChessBoard::changeTurn(bool autoChangeTeam) {
     if (autoChangeTeam) {
         if (currentTeam == COLOR::BLACK) {
@@ -650,6 +752,9 @@ void ChessBoard::changeTurn(bool autoChangeTeam) {
 	emit changedTurnSignal(currentTeam);
 }
 
+// Intent: resize the chess board
+// Pre: none
+// Post: resize the chess board
 void ChessBoard::resizeEvent(QResizeEvent *event)
 {
     int boardH = event->size().height();
@@ -681,8 +786,13 @@ void ChessBoard::resizeEvent(QResizeEvent *event)
     }
 }
 
+// Intent: load FEN code
+// Pre: none
+// Post: load FEN code
 void ChessBoard::load(QString FEN) {
     GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
+
+    // 紀錄盤面
     emphasizeClearAll();
     firstClick = true;
     currentMove = 0;
@@ -691,6 +801,9 @@ void ChessBoard::load(QString FEN) {
     changeTurn(false);
 }
 
+// Intent: undo to previous move
+// Pre: none
+// Post: undo to previous move
 void ChessBoard::undo()
 {
     if (currentMove == 0)
@@ -704,6 +817,9 @@ void ChessBoard::undo()
     emit changedTurnSignal(currentTeam);
 }
 
+// Intent: redo to next move
+// Pre: none
+// Post: redo to next move
 void ChessBoard::redo() {
     if (currentMove == moves.size() - 1)
         return;
