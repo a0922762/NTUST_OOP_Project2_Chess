@@ -90,14 +90,15 @@ private:
     // false時，只計算遊戲狀態
     void changeTurn(bool autoChangeTeam = true);
 
+    void move(Position from, Position to);
+    void eat(Position eater, Position eaten);
+
 public:
 	ChessBoard(QWidget* parent);
 
-    void move(Position from, Position to);
-	void eat(Position eater, Position eaten);
-
     void resizeEvent(QResizeEvent* event) override;
 
+    bool isChecked() const { return numOfChecking; }
     COLOR getTurn() const { return currentTeam; }
     int getHalfMove() const { return halfmove; }
     int getFullMove() const { return fullmove; }

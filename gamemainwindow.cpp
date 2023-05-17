@@ -17,6 +17,7 @@ GameMainWindow::GameMainWindow(QWidget *parent)
     , pregameDialog(new PreGame(this))
 {
     ui->setupUi(this);
+    ui->checkedLabel->hide();
 
     // palette
     QPalette myPalette;
@@ -162,6 +163,7 @@ void GameMainWindow::updateInfo(COLOR color)
     }
     ui->roundLCD->display(ui->chessBoard->getFullMove());
     ui->halfmoveLCD->display(ui->chessBoard->getHalfMove());
+    ui->checkedLabel->setVisible(ui->chessBoard->isChecked());
 }
 
 // Intend: 暫停遊戲

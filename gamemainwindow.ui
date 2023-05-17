@@ -351,6 +351,19 @@ border: 1px solid grey;</string>
        </spacer>
       </item>
       <item>
+       <widget class="QLabel" name="checkedLabel">
+        <property name="styleSheet">
+         <string notr="true">background-color: red; color: black; font:  italic 30px alef;</string>
+        </property>
+        <property name="text">
+         <string>Checked !!!</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QLabel" name="turnLabel">
         <property name="minimumSize">
          <size>
