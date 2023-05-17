@@ -7,22 +7,35 @@
 #include "ChessPieces.h"
 #include "common.h"
 
+/**
+ * @brief Player
+ * @details 負責處理棋子的點擊事件+移動棋子
+ */
 class ChessBoard : public QWidget
 {
 	Q_OBJECT
-
+    friend class GameManager;
 
 private:
-	ChessPieces* chessPieces[8][8];
+    // 點擊資訊
 	bool firstClick;
 	Position beforeClickPos;
+
+    // 盤面資訊
+    ChessPieces* chessPieces[8][8];
 	COLOR currentTeam;
     int castlingFlag = 0b1111;
     Position enPassant = { -1, -1 };
     int halfmove = 0;
     int fullmove = 0;
 
+    // 遊戲狀態
     GameManager::State gameState;
+    int numOfChecking;
+    struct {
+        bool isDonimated;
+        bool isChecking;
+    } enemyTerritory[8][8]; //!< 敵方的勢力範圍
     std::vector<QString> moves; //!< 以FEN儲存每回合盤面
     int currentMove; //!< 目前盤面在moves中的index
 
@@ -41,6 +54,8 @@ private:
     bool isTurn(Position pos) const { return isWhite(pos) == (currentTeam == COLOR::WHITE); }
 
 	// get can move position
+    // gameState != PLAYING時，回傳空vector
+    // 回傳可走到的空格
 	std::vector<Position> getCanMove(Position pos) const;
 	std::vector<Position> getPawnCanMove(Position pos) const;
 	std::vector<Position> getKnightCanMove(Position pos) const;
@@ -50,6 +65,9 @@ private:
 	std::vector<Position> getKingCanMove(Position pos) const;
 
 	// get can eat position
+    // gameState != PLAYING時，回傳空vector
+    // 回傳可吃的enemy
+    // 若pos為敵方棋子，回傳所有被保護的敵方棋子
 	std::vector<Position> getCanEat(Position pos) const;
 	std::vector<Position> getPawnCanEat(Position pos) const;
 	std::vector<Position> getKnightCanEat(Position pos) const;
@@ -85,12 +103,10 @@ public:
 signals:
 	void changedTurnSignal(COLOR currentTeam);
     void gameOver(GameManager::State);
-	void promotion(int &chooseId);
+
 public slots:
 	void chessPiecesClicked(Position pos);
     void undo();
     void redo();
     void setState(GameManager::State state) { gameState = state; }
-	// bool eatPieces(Position from, Position to);
-
 };
