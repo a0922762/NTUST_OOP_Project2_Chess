@@ -85,8 +85,8 @@ private:
 
 	bool pawnIsFirstMove(Position pos) const { return (pos.row == 6 && isWhite(pos)) || (pos.row == 1 && isBlack(pos)); }
 
-    // autoChangeTeam == true -> 改currentTeam+fullmove
-    // false時，只計算遊戲狀態+更新moves
+    // autoChangeTeam == true -> 改currentTeam+fullmove+更新moves
+    // false時，只計算遊戲狀態
     void changeTurn(bool autoChangeTeam = true);
 
 public:

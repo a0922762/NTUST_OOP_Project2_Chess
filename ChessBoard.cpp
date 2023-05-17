@@ -552,12 +552,12 @@ void ChessBoard::changeTurn(bool autoChangeTeam) {
         else {
             currentTeam = COLOR::BLACK;
         }
-    }
 
-    // 紀錄盤面
-    moves.resize(currentMove + 2);
-    ++currentMove;
-    moves[currentMove] = this->toFEN();
+        // 紀錄盤面
+        moves.resize(currentMove + 2);
+        ++currentMove;
+        moves[currentMove] = this->toFEN();
+    }
 
     // fifty move rule
     if (halfmove >= 50) {
@@ -608,7 +608,9 @@ void ChessBoard::load(QString FEN) {
     GameManager::load(FEN, chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
     emphasizeClearAll();
     firstClick = true;
-    currentMove = -1;
+    currentMove = 0;
+    moves.resize(1);
+    moves[currentMove] = FEN;
     changeTurn(false);
 }
 
@@ -621,6 +623,7 @@ void ChessBoard::undo()
     GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
     emphasizeClearAll();
     firstClick = true;
+    changeTurn(false);
     emit changedTurnSignal(currentTeam);
 }
 
@@ -632,6 +635,7 @@ void ChessBoard::redo() {
     GameManager::load(moves[currentMove], chessPieces, currentTeam, castlingFlag, enPassant, halfmove, fullmove);
     emphasizeClearAll();
     firstClick = true;
+    changeTurn(false);
     emit changedTurnSignal(currentTeam);
 }
 
