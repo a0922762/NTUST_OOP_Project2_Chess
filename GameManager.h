@@ -20,6 +20,21 @@ public:
     enum class State { PLAYING, WHITE_WIN, BLACK_WIN, DRAW};
 
 private:
+    // 「我方」、「敵方」的概念皆相對於currentTeam
+    // 畫勢力範圍，標記「可攻擊的空格」、「被保護的敵方棋子」、「被check的我方國王」
+    // 若為bishop、rook、queen額外標記「被pin住的我方棋子」
+    static void drawTerritory(ChessBoard* board, Position pos);
+    static void drawTerritoryPawn(ChessBoard* board, Position pos);
+    static void drawTerritoryKnight(ChessBoard* board, Position pos);
+    static void drawTerritoryKing(ChessBoard* board, Position pos);
+    static void drawTerritoryQueen(ChessBoard* board, Position pos);
+    static void drawTerritoryRook(ChessBoard* board, Position pos);
+    static void drawTerritoryBishop(ChessBoard* board, Position pos);
+    // helper function without checking for pinned，pos為可攻擊到的點
+    static void drawHelperWithoutPinned(ChessBoard* board, Position pos);
+    // helper function that checks for pinned，from為bishop、rook、queen的位置，delta為朝哪個方向
+    // 想法為一個方向、一個方向檢查
+    static void drawHelperWithPinned(ChessBoard* board, Position from, Position delta);
 
 public:
     // 1. 若走出入堡，移動城堡。 2. 依移動更新castlingFlag

@@ -67,7 +67,6 @@ private:
 	// get can eat position
     // gameState != PLAYING時，回傳空vector
     // 回傳可吃的enemy
-    // 若pos為敵方棋子，回傳所有被保護的敵方棋子
 	std::vector<Position> getCanEat(Position pos) const;
 	std::vector<Position> getPawnCanEat(Position pos) const;
 	std::vector<Position> getKnightCanEat(Position pos) const;
@@ -82,7 +81,9 @@ private:
 
 	bool pawnIsFirstMove(Position pos) const { return (pos.row == 6 && isWhite(pos)) || (pos.row == 1 && isBlack(pos)); }
 
-	void changeTurn();
+    // autoChangeTeam == true -> 改currentTeam+fullmove
+    // false時，只計算遊戲狀態+更新moves
+    void changeTurn(bool autoChangeTeam = true);
 
 public:
 	ChessBoard(QWidget* parent);

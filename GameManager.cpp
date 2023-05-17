@@ -1,8 +1,10 @@
 
 #include "GameManager.h"
+#include "ChessBoard.h"
 #include "promotiondialog.h"
 #include <sstream>
 #include <cstring>
+#include <iostream>
 #include <QDebug>
 
 // 1. 若走出入堡，移動城堡。 2. 依移動更新castlingFlag
@@ -235,4 +237,186 @@ void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, 
     iss >> halfmove >> fullmove;
 
     qDebug() << castlingFlag << enPassant.row << enPassant.col << halfmove << fullmove;
+}
+
+void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
+{
+    // 清空enemyTerritory和numOfChecking
+    board->numOfChecking = 0;
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            board->enemyTerritory[r][c] = { false, false };
+        }
+    }
+
+    // 計算enemyTerritory和numOfChecking
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            if (!board->isTurn({r, c}))
+                drawTerritory(board, {r, c});
+        }
+    }
+    qDebug() << "";
+
+    // print enemyTerritory (for test)
+    for (int r = 0; r < 8; ++r) {
+        for (int c = 0; c < 8; ++c) {
+            std::cout << (board->enemyTerritory[r][c].isDonimated ? 'D' : '_')
+                      << (board->enemyTerritory[r][c].isChecking ? 'C' : '_')
+                      << ' ';
+        }
+        std::cout << '\n';
+    }
+    std::cout << board->numOfChecking << std::endl;
+
+    // 計算currentTeam可走的棋步
+
+    // 更新state
+}
+
+void GameManager::drawTerritory(ChessBoard* board, Position pos) {
+    switch (board->chessPieces[pos.row][pos.col]->getType()) {
+    case TYPE::PAWN:
+        drawTerritoryPawn(board, pos);
+        return;
+    case TYPE::KNIGHT:
+        drawTerritoryKnight(board, pos);
+        return;
+    case TYPE::KING:
+        drawTerritoryKing(board, pos);
+        return;
+    case TYPE::QUEEN:
+        drawTerritoryQueen(board, pos);
+        return;
+    case TYPE::ROOK:
+        drawTerritoryRook(board, pos);
+        return;
+    case TYPE::BISHOP:
+        drawTerritoryBishop(board, pos);
+        return;
+    case TYPE::EMPTY:
+        return;
+    }
+}
+
+void GameManager::drawHelperWithoutPinned(ChessBoard* board, Position pos) {
+    if (board->posIsOk(pos)) {
+        // 空格或（被保護的）敵方棋子（相對於currentTeam）
+        if (board->isEmpty(pos) || !board->isTurn(pos)) {
+            board->enemyTerritory[pos.row][pos.col].isDonimated = true;
+        }
+        // 我方國王（相對於currentTeam）
+        else if (board->chessPieces[pos.row][pos.col]->getType() == TYPE::KING) {
+            board->enemyTerritory[pos.row][pos.col] = { true, true };
+            board->numOfChecking++;
+        }
+    }
+}
+
+void GameManager::drawTerritoryPawn(ChessBoard* board, Position pos) {
+    qDebug() << "Enemy Pawn at " << pos.row << pos.col;
+    int deltaR = board->isWhite(pos) ? -1 : 1;
+
+    for (int deltaC = -1; deltaC <= 1; deltaC +=2) {
+        Position newPos = {pos.row + deltaR, pos.col + deltaC};
+        drawHelperWithoutPinned(board, newPos);
+    }
+}
+
+void GameManager::drawTerritoryKnight(ChessBoard* board, Position pos) {
+    qDebug() << "Enemy Knight at " << pos.row << pos.col;
+    Position delta[8] = {{-1, 2}, {-2, 1}, {-2, -1}, {-1, -2}, {1, -2}, {2, -1}, {2, 1}, {1, 2}};
+
+    for (int i = 0; i < 8; ++i) {
+        Position newPos = pos + delta[i];
+        drawHelperWithoutPinned(board, newPos);
+    }
+}
+
+void GameManager::drawTerritoryKing(ChessBoard* board, Position pos) {
+    qDebug() << "Enemy King at " << pos.row << pos.col;
+
+    for (int deltaR = -1; deltaR <= 1; ++deltaR) {
+        for (int deltaC = -1; deltaC <= 1; ++deltaC) {
+            if (deltaR == 0 && deltaC == 0) continue;
+
+            Position newPos = {pos.row + deltaR, pos.col + deltaC};
+            drawHelperWithoutPinned(board, newPos);
+        }
+    }
+}
+
+void GameManager::drawHelperWithPinned(ChessBoard* board, Position from, Position delta) {
+    Position newPos = from + delta;
+
+    while (board->posIsOk(newPos)) {
+        // 空格
+        if (board->isEmpty(newPos)) {
+            board->enemyTerritory[newPos.row][newPos.col].isDonimated = true;
+            newPos += delta;
+        }
+        // 被保護的敵方棋子
+        else if (!board->isTurn(newPos)) {
+            board->enemyTerritory[newPos.row][newPos.col].isDonimated = true;
+            return;
+        }
+        // 我方國王
+        else if (board->chessPieces[newPos.row][newPos.col]->getType() == TYPE::KING) {
+            board->numOfChecking++;
+            // 將from和newPos連線上每點標記（不含from、含newPos）
+            for (Position p = from + delta; !(p == newPos); p += delta) {
+                board->enemyTerritory[p.row][p.col].isChecking = true;
+            }
+            board->enemyTerritory[newPos.row][newPos.col].isDonimated = true;
+            // 國王後方那格
+            newPos += delta;
+            if (board->posIsOk(newPos))
+                board->enemyTerritory[newPos.row][newPos.col].isDonimated = true;
+
+            return;
+        }
+        // 我方的其他棋子（檢查是否被pinned）
+        else {
+            bool isPinned = false;
+            // 從newPos向後找，若碰到「第一個非空的格子」為我方國王，則isPinned = true;
+            for (Position p = newPos + delta; board->posIsOk(p); p += delta) {
+                // 空的
+                if (board->isEmpty(p))
+                    continue;
+                // 敵方
+                else if (!board->isTurn(p))
+                    break;
+                // 不是我方國王
+                else if (board->chessPieces[p.row][p.col]->getType() != TYPE::KING)
+                    break;
+                // 否則是我方國王
+                isPinned = true;
+                break;
+            }
+            if (isPinned) board->enemyTerritory[newPos.row][newPos.col].isDonimated = true;
+            return;
+        }
+    }
+}
+
+void GameManager::drawTerritoryQueen(ChessBoard* board, Position pos) {
+    qDebug() << "Enemy Queen at " << pos.row << pos.col;
+    drawTerritoryBishop(board, pos);
+    drawTerritoryRook(board, pos);
+}
+
+void GameManager::drawTerritoryRook(ChessBoard* board, Position pos) {
+    qDebug() << "Enemy Rook at " << pos.row << pos.col;
+    drawHelperWithPinned(board, pos, {1, 0});
+    drawHelperWithPinned(board, pos, {0, 1});
+    drawHelperWithPinned(board, pos, {-1, 0});
+    drawHelperWithPinned(board, pos, {0, -1});
+}
+
+void GameManager::drawTerritoryBishop(ChessBoard* board, Position pos) {
+    qDebug() << "Enemy Bishop at " << pos.row << pos.col;
+    drawHelperWithPinned(board, pos, {1, 1});
+    drawHelperWithPinned(board, pos, {1, -1});
+    drawHelperWithPinned(board, pos, {-1, 1});
+    drawHelperWithPinned(board, pos, {-1, -1});
 }
