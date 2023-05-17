@@ -31,7 +31,7 @@ private:
     static void drawTerritoryRook(ChessBoard* board, Position pos);
     static void drawTerritoryBishop(ChessBoard* board, Position pos);
     // helper function without checking for pinned，pos為可攻擊到的點
-    static void drawHelperWithoutPinned(ChessBoard* board, Position pos);
+    static void drawHelperWithoutPinned(ChessBoard* board, Position pos, Position from);
     // helper function that checks for pinned，from為bishop、rook、queen的位置，delta為朝哪個方向
     // 想法為一個方向、一個方向檢查
     static void drawHelperWithPinned(ChessBoard* board, Position from, Position delta);

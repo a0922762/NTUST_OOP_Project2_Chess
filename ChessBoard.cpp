@@ -254,26 +254,57 @@ std::vector<Position> ChessBoard::getKingCanMove(Position pos) const {
 }
 
 std::vector<Position> ChessBoard::getCanEat(Position pos) const {
+    std::vector<Position> canEat;
+    TYPE chessTYPE = chessPieces[pos.row][pos.col]->getType();
+
     if (gameState != GameManager::State::PLAYING) {
-        return std::vector<Position> ();
+        return canEat;
     }
 
-	switch (chessPieces[pos.row][pos.col]->getType()) {
+    // 被pin住，不能動
+    if (isDonimated(pos) && chessTYPE != TYPE::KING) {
+        return canEat;
+    }
+
+    // 被multiple check，只有王能動
+    if (numOfChecking >= 2 && chessTYPE != TYPE::KING) {
+        return canEat;
+    }
+
+    switch (chessTYPE) {
 	case TYPE::PAWN:
-		return getPawnCanEat(pos);
+        canEat = getPawnCanEat(pos);
+        break;
 	case TYPE::ROOK:
-		return getRookCanEat(pos);
+        canEat = getRookCanEat(pos);
+        break;
 	case TYPE::KNIGHT:
-		return getKnightCanEat(pos);
+        canEat = getKnightCanEat(pos);
+        break;
 	case TYPE::BISHOP:
-		return getBishopCanEat(pos);
+        canEat = getBishopCanEat(pos);
+        break;
 	case TYPE::QUEEN:
-		return getQueenCanEat(pos);
+        canEat = getQueenCanEat(pos);
+        break;
 	case TYPE::KING:
-		return getKingCanEat(pos);
+        // 國王走法的處理寫在函式中
+        return getKingCanEat(pos);
 	default:
-		return std::vector<Position>();
+        return canEat;
 	}
+
+    // 若被check
+    if (numOfChecking == 1) {
+        // 必須要能吃掉實際攻擊者
+        for (auto& p : canEat) {
+            if (!isRealAttacker(p))
+                p = {-1, -1};
+        }
+        canEat.erase(std::remove(canEat.begin(), canEat.end(), Position{-1, -1}), canEat.end());
+    }
+
+    return canEat;
 }
 
 std::vector<Position> ChessBoard::getPawnCanEat(Position pos) const {
@@ -396,7 +427,7 @@ std::vector<Position> ChessBoard::getKingCanEat(Position pos) const {
 	int deltaCol[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 	for (int i = 0; i < 8; i++) {
 		Position newPos = Position{ pos.row + deltaRow[i], pos.col + deltaCol[i] };
-		if (posIsOk(newPos) && !isEmpty(newPos) && isEnemy(pos, newPos)) {
+        if (posIsOk(newPos) && !isEmpty(newPos) && isEnemy(pos, newPos) && !isDonimated(newPos)) {
 			canEat.push_back(newPos);
 		}
 	}

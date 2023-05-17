@@ -299,7 +299,7 @@ void GameManager::drawTerritory(ChessBoard* board, Position pos) {
     }
 }
 
-void GameManager::drawHelperWithoutPinned(ChessBoard* board, Position pos) {
+void GameManager::drawHelperWithoutPinned(ChessBoard* board, Position pos, Position from) {
     if (board->posIsOk(pos)) {
         // 空格或（被保護的）敵方棋子（相對於currentTeam）
         if (board->isEmpty(pos) || !board->isTurn(pos)) {
@@ -307,8 +307,10 @@ void GameManager::drawHelperWithoutPinned(ChessBoard* board, Position pos) {
         }
         // 我方國王（相對於currentTeam）
         else if (board->chessPieces[pos.row][pos.col]->getType() == TYPE::KING) {
-            board->enemyTerritory[pos.row][pos.col] = { true, true };
+            board->enemyTerritory[pos.row][pos.col].isDonimated = true;
+            board->enemyTerritory[from.row][from.col].isChecking = true;
             board->numOfChecking++;
+
         }
     }
 }
@@ -319,7 +321,7 @@ void GameManager::drawTerritoryPawn(ChessBoard* board, Position pos) {
 
     for (int deltaC = -1; deltaC <= 1; deltaC +=2) {
         Position newPos = {pos.row + deltaR, pos.col + deltaC};
-        drawHelperWithoutPinned(board, newPos);
+        drawHelperWithoutPinned(board, newPos, pos);
     }
 }
 
@@ -329,7 +331,7 @@ void GameManager::drawTerritoryKnight(ChessBoard* board, Position pos) {
 
     for (int i = 0; i < 8; ++i) {
         Position newPos = pos + delta[i];
-        drawHelperWithoutPinned(board, newPos);
+        drawHelperWithoutPinned(board, newPos, pos);
     }
 }
 
@@ -341,7 +343,7 @@ void GameManager::drawTerritoryKing(ChessBoard* board, Position pos) {
             if (deltaR == 0 && deltaC == 0) continue;
 
             Position newPos = {pos.row + deltaR, pos.col + deltaC};
-            drawHelperWithoutPinned(board, newPos);
+            drawHelperWithoutPinned(board, newPos, pos);
         }
     }
 }
@@ -363,8 +365,8 @@ void GameManager::drawHelperWithPinned(ChessBoard* board, Position from, Positio
         // 我方國王
         else if (board->chessPieces[newPos.row][newPos.col]->getType() == TYPE::KING) {
             board->numOfChecking++;
-            // 將from和newPos連線上每點標記（不含from、含newPos）
-            for (Position p = from + delta; !(p == newPos); p += delta) {
+            // 將from和newPos連線上每點標記為isChecking（含from、不含newPos）
+            for (Position p = from; !(p == newPos); p += delta) {
                 board->enemyTerritory[p.row][p.col].isChecking = true;
             }
             board->enemyTerritory[newPos.row][newPos.col].isDonimated = true;
