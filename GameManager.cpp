@@ -270,8 +270,32 @@ void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
     std::cout << board->numOfChecking << std::endl;
 
     // 計算currentTeam可走的棋步
+    bool hasMove = false;
+    for (int i = 0; i < 8; ++i) {
+        for (int j = 0; j < 8; ++j) {
+            // 我方 非空格
+            if (board->isTurn({i, j}) && !board->isEmpty(i, j)) {
+                if (board->getCanEat({i, j}).empty() && board->getCanMove({i, j}).empty())
+                    continue;
+                hasMove = true;
+                break;
+            }
+        }
+    }
 
     // 更新state
+    if (hasMove)
+        board->gameState = GameManager::State::PLAYING;
+    else {
+        if (board->numOfChecking == 0)
+            board->gameState = GameManager::State::DRAW;
+        else {
+            if (board->currentTeam == COLOR::WHITE)
+                board->gameState = GameManager::State::BLACK_WIN;
+            else
+                board->gameState = GameManager::State::WHITE_WIN;
+        }
+    }
 }
 
 void GameManager::drawTerritory(ChessBoard* board, Position pos) {

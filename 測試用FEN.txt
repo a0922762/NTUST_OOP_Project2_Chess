@@ -8,3 +8,7 @@ r3k2r/8/8/8/8/8/8/R3K2R w KQkq - 0 1
 k7/q6K/4N1PQ/4BR2/8/8/8/8 w - - 0 1
 multiple check
 3k4/5q2/4n3/3P3R/5K2/8/8/8 w - - 0 1
+被pin住，但要能水平移動
+2b1k1nr/1pp2p1p/6p1/8/2p5/2q5/5PPP/r4R1K w k - 2 18
+Rb6，和局
+k7/2Q5/2R4K/8/8/8/8/8 w - - 0 1
