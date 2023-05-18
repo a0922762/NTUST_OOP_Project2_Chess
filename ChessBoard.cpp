@@ -126,7 +126,7 @@ std::vector<Position> ChessBoard::getCanMove(Position pos) const {
         canGo.erase(std::remove(canGo.begin(), canGo.end(), Position{-1, -1}), canGo.end());
     }
     // 被pin住，將所有不在和國王同列或同欄的移動清掉
-    else if (isDonimated(pos)){
+    if (isDonimated(pos)){
         Position kingPos = getOurKing();
         // 在同一列
         if (kingPos.row == pos.row) {
@@ -387,7 +387,7 @@ std::vector<Position> ChessBoard::getCanEat(Position pos) const {
         canEat.erase(std::remove(canEat.begin(), canEat.end(), Position{-1, -1}), canEat.end());
     }
     // 被pin住，將所有不在和國王同列或同欄的移動清掉
-    else if (isDonimated(pos)){
+    if (isDonimated(pos)){
         Position kingPos = getOurKing();
         // 在同一列
         if (kingPos.row == pos.row) {
