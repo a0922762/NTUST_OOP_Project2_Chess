@@ -4,7 +4,7 @@
  * Author: BO-YUAN JEANG (jeangbyj@gmail.com)
  * Create Date: 2023-05-06
  * Editor: BO-YUAN JEANG (jeangbyj@gmail.com)
- * Update Date: 2023-05-06
+ * Update Date: 2023-05-17
  * Description: Header file for GameManager.cpp
  *********************************************************************/
 #include "ChessPieces.h"

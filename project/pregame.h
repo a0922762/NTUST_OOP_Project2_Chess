@@ -37,13 +37,17 @@ class PreGame : public QDialog
 public:
     explicit PreGame(QWidget *parent = nullptr);
     ~PreGame();
+    // 若點右上角的X關閉視窗，則離開遊戲
     void closeEvent(QCloseEvent *) override;
+    // 按下ESC，等同按下右上角的X
     void keyPressEvent(QKeyEvent*) override;
 
 private slots:
+    // 統整使用者的設定，並透過signal送出
     void sendSetting();
 
 public slots:
+    // 開啟視窗，預設result為Rejected
     void open() override { setResult(QDialog::Rejected); QDialog::open(); }
 
 signals:

@@ -250,9 +250,9 @@ void GameManager::load(QString FEN, ChessPieces *pieces[8][8], COLOR &moveTeam, 
     qDebug() << castlingFlag << enPassant.row << enPassant.col << halfmove << fullmove;
 }
 
-// Intent: draw the territory of a piece
+// Intent: draw the territory of pieces and update game state
 // Pre: none
-// Post: draw the territory of a piece
+// Post: modify the board->enemyTerritory board->numOfChecking board->gameState
 void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
 {
     board->gameState = GameManager::State::PLAYING;
@@ -314,9 +314,9 @@ void GameManager::drawTerritoryAndUpdateState(ChessBoard *board)
     }
 }
 
-// Intent: draw the territory of pieces
+// Intent: draw the territory of a piece
 // Pre: none
-// Post: draw the territory of pieces
+// Post: draw the territory of a piece
 void GameManager::drawTerritory(ChessBoard* board, Position pos) {
     switch (board->chessPieces[pos.row][pos.col]->getType()) {
     case TYPE::PAWN:
