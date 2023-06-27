@@ -742,14 +742,13 @@ void ChessBoard::changeTurn(bool autoChangeTeam) {
     // fifty move rule
     if (halfmove >= 50) {
         gameState = GameManager::State::DRAW;
-        emit gameOver(gameState);
     }
     else {
-        GameManager::drawTerritoryAndUpdateState(this);
-        emit gameOver(gameState);
+        GameManager::drawTerritoryAndUpdateState(this);     
     }
 
-	emit changedTurnSignal(currentTeam);
+    emit changedTurnSignal(currentTeam);
+    emit gameOver(gameState);
 }
 
 // Intent: resize the chess board
