@@ -37,6 +37,7 @@ private:
 	TYPE type;
 	COLOR color;
     QString imageAddress;
+    QPoint startDrag;
 public:
 	explicit ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent = nullptr);
     ChessPieces(int row, int col, QWidget* parent = nullptr);
@@ -57,6 +58,15 @@ public:
 
 	// 當滑鼠點擊時觸發
     void mousePressEvent(QMouseEvent* event) override;
+    // 若按著左鍵移動，則觸發drag（mime type: "custom/chess"）
+    void mouseMoveEvent(QMouseEvent* event) override;
+    // drag進入時，判斷是否是棋子
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    // drop時，emit clicked signal
+    void dropEvent(QDropEvent* event) override;
+    // unused
+    void dragMoveEvent(QDragMoveEvent*) override {}
+    void dragLeaveEvent(QDragLeaveEvent*) override {}
 
 	friend void swap(ChessPieces& lhs, ChessPieces& rhs);
 signals:
