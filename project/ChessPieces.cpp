@@ -7,7 +7,12 @@
  * Description: this is a chess pieces implention
  *********************************************************************/
 #include "ChessPieces.h"
+#include <QApplication>
 #include <QMouseEvent>
+#include <QDrag>
+#include <QMimeData>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QPixmap>
 #include <QPalette>
 #include <QDebug>
@@ -20,6 +25,7 @@
 ChessPieces::ChessPieces(const Position& pos, TYPE type, COLOR color, QWidget* parent)
     : QLabel(parent), pos(pos), type(type), color(color)
 {
+    setAcceptDrops(true);
     setType(type, color);
 }
 
@@ -89,6 +95,7 @@ ChessPieces::ChessPieces(int row, int col, QWidget* parent) : QLabel(parent){
         break;
     }
 
+    setAcceptDrops(true);
     setType(type, color);
 }
 
@@ -151,14 +158,77 @@ Position posFromAlgebraic(std::string notation)
 }
 
 // Intent: when pieces is clicked, emit clicked signal
+// Pre: clicked
+// Post: emit clicked signal
 void ChessPieces::mousePressEvent(QMouseEvent* event)
 {
     // if left click
     if (event->button() == Qt::LeftButton) {
         qDebug() << pos.row << ',' << pos.col << "click" << (int)type << (int)color << imageAddress;
+        startDrag = event->pos();
         emit clicked(pos);
-
     }
+}
+
+// Intend: 當按著左鍵移動時觸發drag
+// Pre: 按著左鍵移動一段距離
+// Post: 開始drag，拖移的mime data: "custom/chess", "W" or "B"（白或黑）
+void ChessPieces::mouseMoveEvent(QMouseEvent *event)
+{
+    if (this->type == TYPE::EMPTY)
+        return;
+
+    QPoint delta = event->pos() - startDrag;
+
+    if (event->buttons() & Qt::LeftButton && delta.manhattanLength() >= QApplication::startDragDistance())
+    {
+        QScopedPointer<QDrag> drag(new QDrag(this));
+        QMimeData* mime = new QMimeData;
+
+        // initialize data
+        mime->setData("custom/chess", this->color == COLOR::WHITE ? "W" : "B");
+        drag->setMimeData(mime);
+
+        // initialize pixmap
+        QPixmap pix(this->pixmap(Qt::ReturnByValue));
+        drag->setPixmap(pix);
+        drag->setHotSpot(QPoint(pix.width() / 2, pix.height() / 2));
+
+        this->setPixmap(QPixmap());
+        drag->exec();
+        if (!this->imageAddress.isEmpty())
+            this->setPixmap(QPixmap(this->imageAddress).scaled(this->size()));
+    }
+}
+
+// Intend: drag進來時，只接受"custom/chess"這個mime type
+// Pre: drag enter
+// Post: accept proposed action if mime type contains "custom/chess"
+void ChessPieces::dragEnterEvent(QDragEnterEvent *event)
+{
+    // 只接受有"custom/chess"這個mime type的mime data
+    if (event->mimeData()->hasFormat("custom/chess")) {
+        event->acceptProposedAction();
+    }
+}
+
+// Intend: drop時，判斷是否要emit clicked signal
+// Pre: drop
+// Post: 若該格不為空且拖上來的棋子是同隊的，則return；否則emit clicked signal
+void ChessPieces::dropEvent(QDropEvent *event)
+{
+    QByteArray arr = event->mimeData()->data("custom/chess");
+    // 若不是空的格子，則只接受敵隊棋子拖上來
+    if (this->type != TYPE::EMPTY && arr.startsWith(this->color == COLOR::WHITE ? 'W' : 'B')) {
+        return;
+    }
+
+    emit clicked(pos);
+
+    if (!this->imageAddress.isEmpty())
+        this->setPixmap(QPixmap(this->imageAddress).scaled(this->size()));
+
+    event->acceptProposedAction();
 }
 
 
